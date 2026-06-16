@@ -1,3 +1,6 @@
 node_modules/
 .env
 .claude/worktrees/
+__pycache__/
+*.pyc
+*.pyo

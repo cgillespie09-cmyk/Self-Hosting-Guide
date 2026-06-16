@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sterling &amp; Hale — Business, Real Estate &amp; Family Law</title>
+<meta name="description" content="Sterling & Hale Law Group provides trusted legal counsel in business, real estate, family, and estate law. Schedule a free consultation.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --bg:#0a1628;
+  --bg-alt:#0f1f37;
+  --navy-light:#142a47;
+  --gold:#cda860;
+  --gold-light:#e3c785;
+  --text:#f3f4f7;
+  --text-dim:#9aa6bc;
+  --border:rgba(243,244,247,.1);
+  --maxw:1180px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;}
+h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;font-weight:600;line-height:1.15;}
+a{color:inherit;text-decoration:none;}
+ul{list-style:none;}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+.gold{color:var(--gold-light);}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 30px;font-size:.88rem;font-weight:600;letter-spacing:.03em;border-radius:3px;transition:.3s;}
+.btn-solid{background:var(--gold);color:#0a1628;}
+.btn-solid:hover{background:var(--gold-light);transform:translateY(-2px);}
+.btn-outline{border:1px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold-light);}
+
+header{position:fixed;top:0;left:0;right:0;z-index:200;padding:26px 0;}
+header.scrolled{background:rgba(10,22,40,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:16px 0;}
+nav{display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;letter-spacing:.01em;}
+.nav-links{display:flex;gap:38px;font-size:.88rem;color:var(--text-dim);font-weight:500;}
+.nav-links a:hover{color:var(--gold-light);}
+
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding-top:90px;}
+#hero-canvas{position:absolute;inset:0;z-index:0;}
+.hero-overlay{position:absolute;inset:0;z-index:0;background:linear-gradient(100deg,rgba(10,22,40,.96) 35%,rgba(10,22,40,.55) 100%);}
+.hero-inner{position:relative;z-index:2;max-width:660px;}
+.hero-inner .eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--gold-light);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px;}
+.hero-inner .eyebrow::before{content:'';width:28px;height:1px;background:var(--gold);}
+.hero-inner h1{font-size:clamp(2.6rem,6vw,4.2rem);margin-bottom:22px;}
+.hero-inner p{color:var(--text-dim);font-size:1.1rem;line-height:1.7;margin-bottom:38px;max-width:540px;}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;}
+
+#stats{background:var(--bg-alt);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);padding:44px 0;}
+.stat-item{text-align:center;border-right:1px solid var(--border);}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:700;color:var(--gold-light);}
+.stat-label{color:var(--text-dim);font-size:.82rem;margin-top:6px;}
+
+section{padding:120px 0;}
+.section-head{max-width:620px;margin-bottom:60px;}
+.section-head.center{margin:0 auto 60px;text-align:center;}
+.eyebrow-sm{display:block;color:var(--gold-light);font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px;font-weight:600;}
+.section-head h2{font-size:clamp(2rem,4.5vw,2.8rem);}
+.section-head p{color:var(--text-dim);margin-top:16px;line-height:1.7;}
+
+.practice-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+.practice-card{background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:34px 26px;transition:.3s;}
+.practice-card:hover{border-color:var(--gold);transform:translateY(-6px);}
+.practice-card i{font-size:1.5rem;color:var(--gold-light);margin-bottom:20px;}
+.practice-card h3{font-size:1.3rem;margin-bottom:10px;}
+.practice-card p{color:var(--text-dim);font-size:.9rem;line-height:1.6;}
+
+#why{background:var(--bg-alt);}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.why-graphic{aspect-ratio:4/5;border:1px solid var(--border);background:linear-gradient(160deg,var(--navy-light),var(--bg) 75%);position:relative;}
+.why-graphic::before{content:'';position:absolute;inset:20px;border:1px solid var(--gold);opacity:.35;}
+.why-list li{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border);}
+.why-list li:last-child{border-bottom:none;}
+.why-list i{color:var(--gold-light);margin-top:3px;}
+.why-list h4{font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;margin-bottom:4px;}
+.why-list p{color:var(--text-dim);font-size:.88rem;line-height:1.6;}
+
+.attorneys-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+.attorney-card{text-align:center;}
+.attorney-photo{width:100%;aspect-ratio:3/4;border-radius:6px;background:linear-gradient(160deg,var(--navy-light),var(--bg) 80%);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2.6rem;color:var(--gold-light);margin-bottom:20px;border:1px solid var(--border);}
+.attorney-card h3{font-size:1.3rem;margin-bottom:4px;}
+.attorney-card span{color:var(--text-dim);font-size:.85rem;}
+
+.t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.t-card{background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;padding:34px 30px;}
+.t-card .stars{color:var(--gold);margin-bottom:16px;}
+.t-card p{color:var(--text-dim);font-size:.93rem;line-height:1.65;margin-bottom:20px;font-style:italic;}
+.t-card .who{font-weight:700;font-size:.9rem;}
+.t-card .role{color:var(--text-dim);font-size:.8rem;}
+
+#consult{text-align:center;background:linear-gradient(135deg,var(--navy-light),var(--bg));border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+#consult h2{font-size:clamp(2rem,4.5vw,2.8rem);margin-bottom:18px;}
+#consult p{color:var(--text-dim);margin-bottom:34px;}
+
+.contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;text-align:center;}
+.contact-grid i{font-size:1.4rem;color:var(--gold-light);margin-bottom:16px;}
+.contact-grid h4{font-family:'Inter',sans-serif;font-weight:700;margin-bottom:10px;font-size:1rem;}
+.contact-grid p{color:var(--text-dim);font-size:.9rem;line-height:1.7;}
+
+footer{padding:50px 0;text-align:center;color:var(--text-dim);font-size:.85rem;border-top:1px solid var(--border);}
+footer .logo{display:block;margin-bottom:14px;color:var(--text);}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+@media (max-width:900px){
+  .practice-grid{grid-template-columns:repeat(2,1fr);}
+  .why-grid{grid-template-columns:1fr;}
+  .attorneys-grid{grid-template-columns:1fr;}
+  .t-grid{grid-template-columns:1fr;}
+  .contact-grid{grid-template-columns:1fr;gap:30px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:680px){
+  .nav-links{display:none;}
+  section{padding:80px 0;}
+}
+</style>
+</head>
+<body>
+
+<header id="site-header">
+  <div class="container">
+    <nav>
+      <a href="#hero" class="logo">Sterling <span class="gold">&amp;</span> Hale</a>
+      <ul class="nav-links">
+        <li><a href="#practice">Practice Areas</a></li>
+        <li><a href="#attorneys">Attorneys</a></li>
+        <li><a href="#why">Why Us</a></li>
+        <li><a href="#consult">Contact</a></li>
+      </ul>
+      <a href="#consult" class="btn btn-solid">Free Consultation</a>
+    </nav>
+  </div>
+</header>
+
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="container hero-inner">
+    <div class="eyebrow">Business · Real Estate · Family · Estate Law</div>
+    <h1>Trusted counsel. <span class="gold">Proven results.</span></h1>
+    <p>For over two decades, Sterling &amp; Hale has helped individuals and businesses navigate complex legal matters with clarity, strategy, and care.</p>
+    <div class="hero-actions">
+      <a href="#consult" class="btn btn-solid">Schedule a Free Consultation</a>
+      <a href="#practice" class="btn btn-outline">Our Practice Areas</a>
+    </div>
+  </div>
+</section>
+
+<section id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-num" data-count="1200">0</div><div class="stat-label">Cases Handled</div></div>
+      <div class="stat-item"><div class="stat-num" data-count="22">0</div><div class="stat-label">Years Combined Experience</div></div>
+      <div class="stat-item"><div class="stat-num" data-count="97">0</div><div class="stat-label">% Client Satisfaction</div></div>
+      <div class="stat-item"><div class="stat-num" data-count="24">0</div><div class="stat-label">Hour Response Time</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="practice">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow-sm">Practice Areas</span>
+      <h2>Counsel across the matters that matter most.</h2>
+      <p>Focused expertise across four core practice areas — not a generalist firm spread too thin.</p>
+    </div>
+    <div class="practice-grid">
+      <div class="practice-card reveal"><i class="fa-solid fa-building"></i><h3>Business Law</h3><p>Formation, contracts, and disputes for growing companies.</p></div>
+      <div class="practice-card reveal"><i class="fa-solid fa-house"></i><h3>Real Estate</h3><p>Residential and commercial transactions handled start to close.</p></div>
+      <div class="practice-card reveal"><i class="fa-solid fa-people-roof"></i><h3>Family Law</h3><p>Divorce, custody, and family matters handled with discretion.</p></div>
+      <div class="practice-card reveal"><i class="fa-solid fa-scroll"></i><h3>Estate Planning</h3><p>Wills, trusts, and estate plans that protect what you've built.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="container why-grid">
+    <div class="why-graphic reveal"></div>
+    <div class="reveal">
+      <span class="eyebrow-sm">Why Choose Us</span>
+      <h2 style="margin-bottom:30px;">A firm that treats your case like it's the only one.</h2>
+      <ul class="why-list">
+        <li><i class="fa-solid fa-check"></i><div><h4>Direct Attorney Access</h4><p>You work directly with your attorney — not a rotating cast of paralegals.</p></div></li>
+        <li><i class="fa-solid fa-check"></i><div><h4>Transparent Fees</h4><p>Clear, upfront pricing with no surprise billing.</p></div></li>
+        <li><i class="fa-solid fa-check"></i><div><h4>Fast Response Times</h4><p>You'll hear back from us within 24 hours, guaranteed.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="attorneys">
+  <div class="container">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="eyebrow-sm">Our Attorneys</span>
+      <h2>Meet the team.</h2>
+    </div>
+    <div class="attorneys-grid">
+      <div class="attorney-card reveal"><div class="attorney-photo">LH</div><h3>Linda Hale</h3><span>Founding Partner — Business Law</span></div>
+      <div class="attorney-card reveal"><div class="attorney-photo">RS</div><h3>Robert Sterling</h3><span>Founding Partner — Real Estate</span></div>
+      <div class="attorney-card reveal"><div class="attorney-photo">NK</div><h3>Nina Kapoor</h3><span>Senior Associate — Family Law</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="container">
+    <div class="section-head center reveal" style="margin-left:auto;margin-right:auto;">
+      <span class="eyebrow-sm">Client Testimonials</span>
+      <h2>What our clients say.</h2>
+    </div>
+    <div class="t-grid">
+      <div class="t-card reveal"><div class="stars">★★★★★</div><p>"Linda walked us through every step of our business sale. We never felt lost or out of the loop."</p><div class="who">David Chen</div><div class="role">Business Client</div></div>
+      <div class="t-card reveal"><div class="stars">★★★★★</div><p>"Handled our closing flawlessly and explained every document in plain English."</p><div class="who">Amanda Ortiz</div><div class="role">Real Estate Client</div></div>
+      <div class="t-card reveal"><div class="stars">★★★★★</div><p>"Compassionate, responsive, and incredibly thorough during a difficult time."</p><div class="who">Family Law Client</div><div class="role">Confidential</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="consult">
+  <div class="container">
+    <h2>Let's talk about your case.</h2>
+    <p>Schedule a free, no-obligation consultation with one of our attorneys.</p>
+    <a href="tel:+15555550177" class="btn btn-solid">Call (555) 555-0177</a>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container contact-grid">
+    <div class="reveal"><i class="fa-solid fa-location-dot"></i><h4>Office</h4><p>500 Courthouse Square, Suite 400<br>Downtown</p></div>
+    <div class="reveal"><i class="fa-solid fa-clock"></i><h4>Office Hours</h4><p>Mon–Fri, 8:00am – 6:00pm<br>Evening appointments available</p></div>
+    <div class="reveal"><i class="fa-solid fa-envelope"></i><h4>Contact</h4><p>(555) 555-0177<br>contact@sterlinghalelaw.com</p></div>
+  </div>
+</section>
+
+<footer>
+  <span class="logo">Sterling <span class="gold">&amp;</span> Hale</span>
+  © 2026 Sterling &amp; Hale Law Group. All rights reserved.
+</footer>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const header = document.getElementById('site-header');
+window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 30));
+
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.15 });
+reveals.forEach(el => io.observe(el));
+
+document.querySelectorAll('.stat-num').forEach(el => {
+  const target = parseInt(el.dataset.count, 10);
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        let start = null;
+        const dur = 1500;
+        function step(ts){
+          if (!start) start = ts;
+          const p = Math.min((ts - start) / dur, 1);
+          el.textContent = Math.round(target * p);
+          if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+        obs.disconnect();
+      }
+    });
+  }, { threshold: 0.6 });
+  obs.observe(el);
+});
+
+const canvas = document.getElementById('hero-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+camera.position.z = 8;
+
+function sizeCanvas(){
+  const w = canvas.parentElement.clientWidth, h = canvas.parentElement.clientHeight;
+  renderer.setSize(w, h, true);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+sizeCanvas();
+window.addEventListener('resize', sizeCanvas);
+
+const geo = new THREE.IcosahedronGeometry(2.6, 2);
+const mat = new THREE.MeshBasicMaterial({ color: 0xcda860, wireframe: true, transparent: true, opacity: 0.3 });
+const mesh = new THREE.Mesh(geo, mat);
+mesh.position.set(2.4, 0, 0);
+scene.add(mesh);
+
+const ringGeo = new THREE.TorusGeometry(3.4, 0.01, 16, 120);
+const ringMat = new THREE.MeshBasicMaterial({ color: 0xe3c785, transparent: true, opacity: 0.4 });
+const ring = new THREE.Mesh(ringGeo, ringMat);
+ring.position.set(2.4, 0, 0);
+ring.rotation.x = Math.PI / 2.2;
+scene.add(ring);
+
+const clock = new THREE.Clock();
+function animate(){
+  const t = clock.getElapsedTime();
+  mesh.rotation.y = t * 0.1;
+  mesh.rotation.x = t * 0.06;
+  ring.rotation.z = t * 0.05;
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>

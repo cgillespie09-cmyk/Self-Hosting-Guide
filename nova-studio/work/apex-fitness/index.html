@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apex Performance — Strength &amp; Conditioning Studio</title>
+<meta name="description" content="Apex Performance is a strength and conditioning studio built for real results. Start your free trial today.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --bg:#0a0a0a;
+  --bg-alt:#121212;
+  --lime:#c6ff3d;
+  --orange:#ff5b1f;
+  --text:#f4f4f2;
+  --text-dim:#9a9a98;
+  --border:rgba(244,244,242,.1);
+  --maxw:1200px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;}
+h1,h2,h3,h4{font-family:'Bebas Neue',sans-serif;letter-spacing:.02em;line-height:1.05;text-transform:uppercase;}
+a{color:inherit;text-decoration:none;}
+ul{list-style:none;}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+.lime{color:var(--lime);}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:16px 30px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.04em;border-radius:4px;transition:.25s;}
+.btn-solid{background:var(--lime);color:#0a0a0a;}
+.btn-solid:hover{background:#dbff7a;transform:translateY(-2px);}
+.btn-outline{border:2px solid var(--text);}
+.btn-outline:hover{border-color:var(--lime);color:var(--lime);}
+
+header{position:fixed;top:0;left:0;right:0;z-index:200;padding:24px 0;}
+header.scrolled{background:rgba(10,10,10,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:14px 0;}
+nav{display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.05em;}
+.nav-links{display:flex;gap:34px;font-size:.88rem;font-weight:600;color:var(--text-dim);text-transform:uppercase;}
+.nav-links a:hover{color:var(--lime);}
+
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding-top:90px;}
+#hero-canvas{position:absolute;inset:0;z-index:0;}
+.hero-overlay{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(10,10,10,.2),rgba(10,10,10,.85) 90%);}
+.hero-inner{position:relative;z-index:2;}
+.hero-inner .kicker{display:inline-block;background:var(--lime);color:#0a0a0a;padding:6px 14px;font-weight:800;font-size:.78rem;letter-spacing:.08em;margin-bottom:24px;border-radius:3px;}
+.hero-inner h1{font-size:clamp(3rem,9vw,6.5rem);margin-bottom:20px;}
+.hero-inner p{color:var(--text-dim);max-width:520px;font-size:1.1rem;margin-bottom:36px;}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;}
+
+#stats{background:var(--lime);}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);padding:36px 0;}
+.stat-item{text-align:center;color:#0a0a0a;border-right:1px solid rgba(10,10,10,.15);}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;}
+.stat-label{font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+
+section{padding:120px 0;}
+.section-head{max-width:600px;margin-bottom:60px;}
+.section-head .eyebrow{color:var(--orange);font-weight:700;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:block;}
+.section-head h2{font-size:clamp(2.2rem,5vw,3.4rem);}
+.section-head p{color:var(--text-dim);margin-top:16px;line-height:1.6;}
+
+.programs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.program-card{background:var(--bg-alt);border:1px solid var(--border);border-radius:8px;padding:32px 26px;transition:.3s;position:relative;overflow:hidden;}
+.program-card:hover{border-color:var(--lime);transform:translateY(-6px);}
+.program-card i{font-size:1.6rem;color:var(--lime);margin-bottom:20px;}
+.program-card h3{font-size:1.3rem;margin-bottom:10px;}
+.program-card p{color:var(--text-dim);font-size:.9rem;line-height:1.6;}
+
+#trainers{background:var(--bg-alt);}
+.trainers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.trainer-card{text-align:center;}
+.trainer-photo{width:100%;aspect-ratio:1;border-radius:8px;background:linear-gradient(160deg,#1c1c1c,#0a0a0a);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:3rem;color:var(--lime);margin-bottom:20px;border:1px solid var(--border);}
+.trainer-card h3{font-size:1.2rem;margin-bottom:4px;}
+.trainer-card span{color:var(--orange);font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+
+.membership-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.m-card{background:var(--bg-alt);border:1px solid var(--border);border-radius:8px;padding:38px 30px;text-align:center;transition:.3s;}
+.m-card.featured{border-color:var(--lime);background:linear-gradient(160deg,rgba(198,255,61,.08),var(--bg-alt));}
+.m-card:hover{transform:translateY(-6px);}
+.m-card h3{font-size:1.3rem;margin-bottom:14px;color:var(--text-dim);}
+.m-card .price{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;margin-bottom:6px;}
+.m-card .price span{font-size:1rem;color:var(--text-dim);}
+.m-card ul{margin:26px 0;text-align:left;}
+.m-card li{padding:8px 0;font-size:.88rem;color:var(--text-dim);border-bottom:1px solid var(--border);}
+.m-card li i{color:var(--lime);margin-right:8px;}
+
+.gallery-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;}
+.gallery-strip div{aspect-ratio:1;border-radius:6px;background:linear-gradient(160deg,#1a1a1a,#0a0a0a);border:1px solid var(--border);}
+
+.t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.t-card{background:var(--bg-alt);border:1px solid var(--border);border-radius:8px;padding:32px;}
+.t-card .stars{color:var(--lime);margin-bottom:16px;}
+.t-card p{color:var(--text-dim);font-size:.94rem;line-height:1.6;margin-bottom:20px;}
+.t-card .who{font-weight:700;font-size:.9rem;}
+.t-card .role{color:var(--text-dim);font-size:.8rem;}
+
+#cta{background:linear-gradient(135deg,var(--lime),#9fe000);text-align:center;color:#0a0a0a;}
+#cta h2{font-size:clamp(2.2rem,5vw,3.4rem);margin-bottom:18px;}
+#cta p{margin-bottom:32px;font-weight:500;}
+#cta .btn-solid{background:#0a0a0a;color:var(--lime);}
+#cta .btn-solid:hover{background:#1c1c1c;}
+
+footer{padding:50px 0;text-align:center;color:var(--text-dim);font-size:.85rem;border-top:1px solid var(--border);}
+footer .logo{display:block;margin-bottom:14px;color:var(--text);}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+@media (max-width:900px){
+  .programs-grid{grid-template-columns:repeat(2,1fr);}
+  .trainers-grid{grid-template-columns:1fr;}
+  .membership-grid{grid-template-columns:1fr;}
+  .t-grid{grid-template-columns:1fr;}
+  .gallery-strip{grid-template-columns:repeat(3,1fr);}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:680px){
+  .nav-links{display:none;}
+  .programs-grid{grid-template-columns:1fr;}
+  section{padding:80px 0;}
+}
+</style>
+</head>
+<body>
+
+<header id="site-header">
+  <div class="container">
+    <nav>
+      <a href="#hero" class="logo">APEX<span class="lime">.</span></a>
+      <ul class="nav-links">
+        <li><a href="#programs">Programs</a></li>
+        <li><a href="#trainers">Trainers</a></li>
+        <li><a href="#membership">Membership</a></li>
+        <li><a href="#cta">Contact</a></li>
+      </ul>
+      <a href="#cta" class="btn btn-solid">Start Free Trial</a>
+    </nav>
+  </div>
+</header>
+
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="container hero-inner">
+    <span class="kicker">New Member Trial Now Open</span>
+    <h1>Train like<br>you <span class="lime">mean it.</span></h1>
+    <p>Strength training, conditioning, and coaching built around real results — not just a workout playlist.</p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn btn-solid">Start Free Trial</a>
+      <a href="#programs" class="btn btn-outline">See Programs</a>
+    </div>
+  </div>
+</section>
+
+<section id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-num" data-count="850">0</div><div class="stat-label">Active Members</div></div>
+      <div class="stat-item"><div class="stat-num" data-count="32">0</div><div class="stat-label">Classes / Week</div></div>
+      <div class="stat-item"><div class="stat-num" data-count="9">0</div><div class="stat-label">Years Running</div></div>
+      <div class="stat-item"><div class="stat-num" data-count="4">0</div><div class="stat-label">Avg. Rating /5</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="programs">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Programs</span>
+      <h2>Pick your path.</h2>
+      <p>Every program is coached, scaled to your level, and tracked — so you always know you're improving.</p>
+    </div>
+    <div class="programs-grid">
+      <div class="program-card reveal"><i class="fa-solid fa-dumbbell"></i><h3>Strength</h3><p>Build raw power with progressive barbell programming.</p></div>
+      <div class="program-card reveal"><i class="fa-solid fa-fire"></i><h3>HIIT</h3><p>High-intensity intervals to torch fat and build endurance fast.</p></div>
+      <div class="program-card reveal"><i class="fa-solid fa-person"></i><h3>Mobility &amp; Yoga</h3><p>Recover smarter and move better between hard sessions.</p></div>
+      <div class="program-card reveal"><i class="fa-solid fa-user-tie"></i><h3>1-on-1 Coaching</h3><p>Personalized programming with a dedicated coach.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="trainers">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Meet The Team</span>
+      <h2>Coaches who actually coach.</h2>
+    </div>
+    <div class="trainers-grid">
+      <div class="trainer-card reveal"><div class="trainer-photo">JR</div><h3>Jake Romero</h3><span>Founder &amp; Head Coach</span></div>
+      <div class="trainer-card reveal"><div class="trainer-photo">MA</div><h3>Mia Alvarez</h3><span>Strength &amp; Conditioning</span></div>
+      <div class="trainer-card reveal"><div class="trainer-photo">TB</div><h3>Tyler Brooks</h3><span>Mobility &amp; Recovery</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="membership">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Membership</span>
+      <h2>Join on your terms.</h2>
+    </div>
+    <div class="membership-grid">
+      <div class="m-card reveal">
+        <h3>Drop-In</h3>
+        <div class="price">$25 <span>/ class</span></div>
+        <ul><li><i class="fa-solid fa-check"></i> Single class access</li><li><i class="fa-solid fa-check"></i> No commitment</li><li><i class="fa-solid fa-check"></i> Great for visitors</li></ul>
+        <a href="#cta" class="btn btn-outline">Get Started</a>
+      </div>
+      <div class="m-card featured reveal">
+        <h3>Unlimited</h3>
+        <div class="price">$129 <span>/ mo</span></div>
+        <ul><li><i class="fa-solid fa-check"></i> Unlimited classes</li><li><i class="fa-solid fa-check"></i> All programs included</li><li><i class="fa-solid fa-check"></i> Member app access</li><li><i class="fa-solid fa-check"></i> Free monthly check-in</li></ul>
+        <a href="#cta" class="btn btn-solid">Get Started</a>
+      </div>
+      <div class="m-card reveal">
+        <h3>Elite Coaching</h3>
+        <div class="price">$249 <span>/ mo</span></div>
+        <ul><li><i class="fa-solid fa-check"></i> Everything in Unlimited</li><li><i class="fa-solid fa-check"></i> 2x 1-on-1 sessions / mo</li><li><i class="fa-solid fa-check"></i> Custom nutrition plan</li></ul>
+        <a href="#cta" class="btn btn-outline">Get Started</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Inside Apex</span>
+      <h2>The floor.</h2>
+    </div>
+    <div class="gallery-strip">
+      <div></div><div></div><div></div><div></div><div></div><div></div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Member Results</span>
+      <h2>Real people, real progress.</h2>
+    </div>
+    <div class="t-grid">
+      <div class="t-card reveal"><div class="stars">★★★★★</div><p>"Lost 22 pounds in 4 months and actually enjoy the workouts. The coaches notice when your form slips."</p><div class="who">Carla Nguyen</div><div class="role">Member since 2023</div></div>
+      <div class="t-card reveal"><div class="stars">★★★★★</div><p>"Best gym I've trained at. Programming actually makes sense and progresses week to week."</p><div class="who">Marcus Webb</div><div class="role">Member since 2021</div></div>
+      <div class="t-card reveal"><div class="stars">★★★★★</div><p>"Signed up for the free trial and never left. The community here keeps me coming back."</p><div class="who">Priya Shah</div><div class="role">Member since 2024</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="cta">
+  <div class="container">
+    <h2>Your first class is on us.</h2>
+    <p>No contracts, no pressure — just one free class to see if Apex is right for you.</p>
+    <a href="tel:+15555550142" class="btn btn-solid">Claim Your Free Trial</a>
+  </div>
+</section>
+
+<footer>
+  <span class="logo">APEX<span class="lime">.</span></span>
+  © 2026 Apex Performance. All rights reserved.
+</footer>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const header = document.getElementById('site-header');
+window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 30));
+
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.15 });
+reveals.forEach(el => io.observe(el));
+
+document.querySelectorAll('.stat-num').forEach(el => {
+  const target = parseInt(el.dataset.count, 10);
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        let start = null;
+        const dur = 1400;
+        function step(ts){
+          if (!start) start = ts;
+          const p = Math.min((ts - start) / dur, 1);
+          el.textContent = Math.round(target * p);
+          if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+        obs.disconnect();
+      }
+    });
+  }, { threshold: 0.6 });
+  obs.observe(el);
+});
+
+const canvas = document.getElementById('hero-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+camera.position.z = 7;
+
+function sizeCanvas(){
+  const w = canvas.parentElement.clientWidth, h = canvas.parentElement.clientHeight;
+  renderer.setSize(w, h, true);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+sizeCanvas();
+window.addEventListener('resize', sizeCanvas);
+
+const group = new THREE.Group();
+scene.add(group);
+const geo = new THREE.IcosahedronGeometry(2.3, 0);
+const edges = new THREE.EdgesGeometry(geo);
+const mat = new THREE.LineBasicMaterial({ color: 0xc6ff3d, transparent: true, opacity: 0.6 });
+const mesh = new THREE.LineSegments(edges, mat);
+group.add(mesh);
+
+const count = 500;
+const positions = new Float32Array(count * 3);
+for (let i = 0; i < count; i++) {
+  positions[i*3] = (Math.random() - 0.5) * 14;
+  positions[i*3+1] = (Math.random() - 0.5) * 9;
+  positions[i*3+2] = (Math.random() - 0.5) * 8;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const pMat = new THREE.PointsMaterial({ color: 0xff5b1f, size: 0.03, transparent: true, opacity: 0.55 });
+const pts = new THREE.Points(pGeo, pMat);
+scene.add(pts);
+
+let targetX = 0, targetY = 0;
+window.addEventListener('mousemove', e => {
+  targetY = (e.clientX / window.innerWidth - 0.5) * 0.8;
+  targetX = (e.clientY / window.innerHeight - 0.5) * 0.8;
+});
+
+const clock = new THREE.Clock();
+function animate(){
+  const t = clock.getElapsedTime();
+  group.rotation.x = t * 0.2 + targetX;
+  group.rotation.y = t * 0.25 + targetY;
+  pts.rotation.y = t * 0.04;
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumière Bistro — Modern French Dining</title>
+<meta name="description" content="Lumière Bistro — an intimate French restaurant serving modern seasonal cuisine. Reserve your table tonight.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Lora:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="icon" href="data:,">
+<style>
+:root{
+  --bg:#0e0b08;
+  --bg-alt:#16110b;
+  --gold:#c9a227;
+  --gold-light:#e8c873;
+  --cream:#f3ead9;
+  --cream-dim:#bfb29a;
+  --border:rgba(243,234,217,.12);
+  --maxw:1180px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--cream);font-family:'Lora',serif;overflow-x:hidden;}
+h1,h2,h3,h4{font-family:'Playfair Display',serif;font-weight:600;line-height:1.2;}
+a{color:inherit;text-decoration:none;}
+ul{list-style:none;}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+.gold{color:var(--gold-light);}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 32px;border:1px solid var(--gold);border-radius:2px;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;transition:.3s;}
+.btn-solid{background:var(--gold);color:#1a1408;border-color:var(--gold);}
+.btn-solid:hover{background:var(--gold-light);}
+.btn-outline:hover{background:var(--gold);color:#1a1408;}
+
+header{position:fixed;top:0;left:0;right:0;z-index:200;padding:26px 0;transition:.3s;}
+header.scrolled{background:rgba(14,11,8,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:16px 0;}
+nav{display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Playfair Display',serif;font-size:1.5rem;letter-spacing:.06em;}
+.nav-links{display:flex;gap:40px;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-dim);}
+.nav-links a:hover{color:var(--gold-light);}
+.nav-links{transition:.3s;}
+
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;}
+#hero-canvas{position:absolute;inset:0;z-index:0;}
+.hero-overlay{position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,rgba(201,162,39,.10),transparent 60%);z-index:0;}
+.hero-inner{position:relative;z-index:2;max-width:780px;padding:0 24px;}
+.hero-eyebrow{letter-spacing:.25em;text-transform:uppercase;font-size:.78rem;color:var(--gold-light);margin-bottom:22px;}
+.hero-inner h1{font-size:clamp(2.6rem,6vw,4.6rem);font-style:italic;margin-bottom:24px;}
+.hero-inner p{color:var(--cream-dim);font-size:1.1rem;margin-bottom:38px;line-height:1.7;}
+.hero-actions{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;}
+.divider{width:60px;height:1px;background:var(--gold);margin:0 auto 24px;}
+
+section{padding:120px 0;}
+.section-head{text-align:center;max-width:620px;margin:0 auto 64px;}
+.section-head .hero-eyebrow{margin-bottom:16px;}
+.section-head h2{font-size:clamp(1.8rem,4vw,2.6rem);}
+.section-head p{color:var(--cream-dim);margin-top:16px;line-height:1.7;}
+
+#about{background:var(--bg-alt);}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center;}
+.about-graphic{aspect-ratio:4/5;border:1px solid var(--border);position:relative;background:linear-gradient(160deg,#2a2014,#0e0b08 70%);overflow:hidden;}
+.about-graphic::before{content:'';position:absolute;inset:18px;border:1px solid var(--gold);opacity:.4;}
+.about-graphic .quote-mark{position:absolute;bottom:30px;right:36px;font-family:'Playfair Display',serif;font-size:5rem;color:var(--gold);opacity:.3;}
+.about-text h2{font-size:clamp(1.8rem,4vw,2.4rem);margin-bottom:22px;}
+.about-text p{color:var(--cream-dim);line-height:1.8;margin-bottom:18px;}
+.about-stats{display:flex;gap:50px;margin-top:34px;}
+.about-stats div span{display:block;font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold-light);}
+.about-stats div small{color:var(--cream-dim);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;}
+
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;max-width:980px;margin:0 auto;}
+.menu-item{display:flex;justify-content:space-between;gap:18px;border-bottom:1px dotted var(--border);padding-bottom:18px;margin-bottom:24px;}
+.menu-item .mi-name{font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:6px;}
+.menu-item .mi-desc{color:var(--cream-dim);font-size:.88rem;max-width:280px;}
+.menu-item .mi-price{font-family:'Playfair Display',serif;color:var(--gold-light);font-size:1.1rem;white-space:nowrap;}
+
+#gallery{background:var(--bg-alt);}
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.gallery-grid .g{aspect-ratio:1;position:relative;overflow:hidden;cursor:pointer;}
+.gallery-grid .g img-fake{position:absolute;inset:0;}
+.gallery-grid .g .layer{position:absolute;inset:0;transition:transform .6s ease;}
+.gallery-grid .g:hover .layer{transform:scale(1.12);}
+.gallery-grid .g .tag{position:absolute;bottom:14px;left:14px;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cream);z-index:2;}
+.gallery-grid .g::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55),transparent 50%);z-index:1;}
+
+.t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;}
+.t-card{border:1px solid var(--border);padding:38px 32px;text-align:center;}
+.t-stars{color:var(--gold);margin-bottom:18px;letter-spacing:3px;}
+.t-card p{color:var(--cream-dim);line-height:1.7;margin-bottom:22px;font-style:italic;}
+.t-card .who{font-family:'Playfair Display',serif;color:var(--gold-light);}
+
+#reserve{text-align:center;background:linear-gradient(160deg,#241b0e,var(--bg));border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+#reserve h2{font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:20px;}
+#reserve p{color:var(--cream-dim);margin-bottom:36px;}
+
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;text-align:center;}
+.info-grid i{font-size:1.5rem;color:var(--gold-light);margin-bottom:16px;}
+.info-grid h4{margin-bottom:10px;font-size:1.05rem;}
+.info-grid p{color:var(--cream-dim);font-size:.9rem;line-height:1.7;}
+
+footer{padding:50px 0;border-top:1px solid var(--border);text-align:center;color:var(--cream-dim);font-size:.85rem;}
+footer .logo{display:block;margin-bottom:14px;}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease,transform .8s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+@media (max-width:900px){
+  .about-grid{grid-template-columns:1fr;}
+  .menu-grid{grid-template-columns:1fr;}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);}
+  .t-grid{grid-template-columns:1fr;}
+  .info-grid{grid-template-columns:1fr;gap:30px;}
+}
+@media (max-width:680px){
+  .nav-links{display:none;}
+  section{padding:80px 0;}
+}
+</style>
+</head>
+<body>
+
+<header id="site-header">
+  <div class="container">
+    <nav>
+      <a href="#hero" class="logo">Lumi<span class="gold">è</span>re</a>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#menu">Menu</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#reserve">Reserve</a></li>
+      </ul>
+      <a href="#reserve" class="btn btn-outline">Reserve a Table</a>
+    </nav>
+  </div>
+</header>
+
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Modern French Dining · Est. 2014</div>
+    <h1>An evening worth <span class="gold">remembering</span>.</h1>
+    <p>Seasonal French cuisine, an intimate dining room, and a wine list built to match. Lumière is where the city comes to slow down.</p>
+    <div class="hero-actions">
+      <a href="#reserve" class="btn btn-solid">Reserve a Table</a>
+      <a href="#menu" class="btn btn-outline">View Menu</a>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="container about-grid">
+    <div class="about-graphic reveal"><span class="quote-mark">"</span></div>
+    <div class="about-text reveal">
+      <div class="hero-eyebrow">Our Story</div>
+      <h2>Cooking with the seasons, not the trends.</h2>
+      <p>Lumière began as a single table in the back of a wine shop. Today it's a 32-seat dining room built around one idea: cook what's good right now, source it as close to home as possible, and never let a dish leave the kitchen we wouldn't serve our own family.</p>
+      <p>Chef Antoine Marchand leads a small kitchen team that changes the menu with the seasons — never the standard.</p>
+      <div class="about-stats">
+        <div><span>12</span><small>Years Open</small></div>
+        <div><span>32</span><small>Seats</small></div>
+        <div><span>4.9</span><small>Avg. Rating</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="menu">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="hero-eyebrow">Tasting Selections</div>
+      <h2>A glimpse of the table.</h2>
+      <p>Our full menu changes weekly — here's a taste of what's currently in season.</p>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-item reveal"><div><div class="mi-name">Seared Scallops</div><div class="mi-desc">Brown butter, citrus, micro herbs</div></div><div class="mi-price">$24</div></div>
+      <div class="menu-item reveal"><div><div class="mi-name">Duck Confit</div><div class="mi-desc">Root vegetables, cherry jus</div></div><div class="mi-price">$34</div></div>
+      <div class="menu-item reveal"><div><div class="mi-name">Burrata &amp; Fig</div><div class="mi-desc">Aged balsamic, toasted hazelnut</div></div><div class="mi-price">$18</div></div>
+      <div class="menu-item reveal"><div><div class="mi-name">Steak Frites</div><div class="mi-desc">Bordelaise, hand-cut fries</div></div><div class="mi-price">$38</div></div>
+      <div class="menu-item reveal"><div><div class="mi-name">Mushroom Risotto</div><div class="mi-desc">Parmesan, white truffle oil</div></div><div class="mi-price">$26</div></div>
+      <div class="menu-item reveal"><div><div class="mi-name">Crème Brûlée</div><div class="mi-desc">Madagascar vanilla, seasonal berry</div></div><div class="mi-price">$12</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="hero-eyebrow">The Room</div>
+      <h2>A look inside Lumière.</h2>
+    </div>
+    <div class="gallery-grid">
+      <div class="g reveal"><div class="layer" style="background:linear-gradient(160deg,#3a2c14,#0e0b08);"></div><span class="tag">Dining Room</span></div>
+      <div class="g reveal"><div class="layer" style="background:linear-gradient(160deg,#4a3318,#15100a);"></div><span class="tag">Wine Cellar</span></div>
+      <div class="g reveal"><div class="layer" style="background:linear-gradient(160deg,#2c2010,#0e0b08);"></div><span class="tag">The Kitchen</span></div>
+      <div class="g reveal"><div class="layer" style="background:linear-gradient(160deg,#3f2c10,#120d07);"></div><span class="tag">Private Table</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="hero-eyebrow">Guest Reviews</div>
+      <h2>What our guests are saying.</h2>
+    </div>
+    <div class="t-grid">
+      <div class="t-card reveal"><div class="t-stars">★★★★★</div><p>"Best meal we've had all year. The duck confit alone is worth the trip."</p><div class="who">— Sarah T.</div></div>
+      <div class="t-card reveal"><div class="t-stars">★★★★★</div><p>"Intimate, romantic, and the wine pairing suggestions were spot on."</p><div class="who">— James & Priya K.</div></div>
+      <div class="t-card reveal"><div class="t-stars">★★★★★</div><p>"Service that actually matches the food. We've already booked our next visit."</p><div class="who">— Daniel M.</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="reserve">
+  <div class="container">
+    <div class="divider"></div>
+    <h2>Reserve your table tonight.</h2>
+    <p>Walk-ins welcome, but the good seats go fast.</p>
+    <a href="tel:+15555550199" class="btn btn-solid">Call (555) 555-0199</a>
+  </div>
+</section>
+
+<section id="info">
+  <div class="container info-grid">
+    <div class="reveal"><i class="fa-solid fa-location-dot"></i><h4>Find Us</h4><p>128 Maple Avenue<br>Downtown Arts District</p></div>
+    <div class="reveal"><i class="fa-solid fa-clock"></i><h4>Hours</h4><p>Tue–Sun, 5:00pm – 11:00pm<br>Closed Mondays</p></div>
+    <div class="reveal"><i class="fa-solid fa-phone"></i><h4>Reservations</h4><p>(555) 555-0199<br>hello@lumierebistro.com</p></div>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">Lumi<span class="gold">è</span>re</div>
+  © 2026 Lumière Bistro. All rights reserved.
+</footer>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const header = document.getElementById('site-header');
+window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 30));
+
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.15 });
+reveals.forEach(el => io.observe(el));
+
+const canvas = document.getElementById('hero-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+camera.position.z = 7;
+
+function sizeCanvas(){
+  const w = canvas.parentElement.clientWidth, h = canvas.parentElement.clientHeight;
+  renderer.setSize(w, h, true);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+sizeCanvas();
+window.addEventListener('resize', sizeCanvas);
+
+const torusGeo = new THREE.TorusGeometry(2.6, 0.015, 16, 100);
+const torusMat = new THREE.MeshBasicMaterial({ color: 0xc9a227, transparent: true, opacity: 0.5 });
+const torus = new THREE.Mesh(torusGeo, torusMat);
+torus.rotation.x = Math.PI / 2.4;
+scene.add(torus);
+
+const count = 200;
+const positions = new Float32Array(count * 3);
+const speeds = new Float32Array(count);
+for (let i = 0; i < count; i++) {
+  positions[i*3] = (Math.random() - 0.5) * 12;
+  positions[i*3+1] = (Math.random() - 0.5) * 8;
+  positions[i*3+2] = (Math.random() - 0.5) * 6;
+  speeds[i] = 0.2 + Math.random() * 0.4;
+}
+const emberGeo = new THREE.BufferGeometry();
+emberGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const emberMat = new THREE.PointsMaterial({ color: 0xe8c873, size: 0.045, transparent: true, opacity: 0.7 });
+const embers = new THREE.Points(emberGeo, emberMat);
+scene.add(embers);
+
+const clock = new THREE.Clock();
+function animate(){
+  const t = clock.getElapsedTime();
+  torus.rotation.z = t * 0.08;
+  const pos = embers.geometry.attributes.position.array;
+  for (let i = 0; i < count; i++) {
+    pos[i*3+1] += speeds[i] * 0.01;
+    if (pos[i*3+1] > 4) pos[i*3+1] = -4;
+  }
+  embers.geometry.attributes.position.needsUpdate = true;
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>

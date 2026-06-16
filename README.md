@@ -2856,6 +2856,8 @@ Home Assistant integrations. Credit: [Home Assistant](https://www.home-assistant
 
 [obsws-python](https://github.com/aatikturk/obsws-python) is a Python SDK for OBS Studio WebSocket v5.0. 
 
+[Higgsfield CLI](https://higgsfield.ai/cli) is a command-line tool for generating images, videos, 3D assets, and audio from the terminal using 30+ Higgsfield AI models (Nano Banana Pro, FLUX.2, Soul V2, Veo 3.1, Kling v3.0, Seedance 2.0, and more), with integrations for Claude Code, Cursor, Codex, and other coding agents. Install with `npm install -g @higgsfield/cli`.
+
 **Video/Audio Standards**
 
 [AAC(Advanced Audio Coding)](https://mpeg.chiariglione.org/) is an audio coding standard for lossy digital audio compression. It's endorsed by ISO and IEC as MPEG-2 and MPEG-4 standards for video streams.

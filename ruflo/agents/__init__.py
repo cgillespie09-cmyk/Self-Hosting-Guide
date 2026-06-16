@@ -1,6 +1,6 @@
 from .base import BaseAgent, AgentResult
 
-AGENT_NAMES = ["researcher", "coder", "writer", "scraper"]
+AGENT_NAMES = ["researcher", "coder", "writer", "scraper", "emailer"]
 
 # Shared lazy-initialized resources
 _memory_store = None
@@ -42,6 +42,9 @@ def get_agent(name: str) -> BaseAgent:
         elif name == "scraper":
             from .scraper import ScraperAgent
             _agent_instances[name] = ScraperAgent(provider, memory)
+        elif name == "emailer":
+            from .emailer import EmailerAgent
+            _agent_instances[name] = EmailerAgent(provider, memory)
         else:
             raise ValueError(f"Unknown agent: {name}")
     return _agent_instances[name]

@@ -2,6 +2,9 @@ import argparse
 import asyncio
 import sys
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Try to import rich for pretty output; fall back to plain print
 try:
     from rich.console import Console

@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$1K/Week — Self-Hosting Services Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #6c63ff;
+    --accent2: #00d2ff;
+    --green: #00e676;
+    --yellow: #ffd600;
+    --red: #ff5252;
+    --text: #e8eaf6;
+    --muted: #7c83a8;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* LAYOUT */
+  .shell { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 40; }
+  .sidebar .logo { padding: 0 24px 28px; font-size: 18px; font-weight: 700; color: var(--accent2); letter-spacing: -0.5px; }
+  .sidebar .logo span { color: var(--green); }
+  .sidebar a { display: flex; align-items: center; gap: 10px; padding: 11px 24px; color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: all .15s; }
+  .sidebar a:hover, .sidebar a.active { color: var(--text); background: var(--surface2); }
+  .sidebar a.active { border-right: 3px solid var(--accent); }
+  .sidebar a .icon { font-size: 18px; width: 22px; text-align: center; }
+  .sidebar .divider { height: 1px; background: var(--border); margin: 12px 24px; }
+  main { margin-left: 220px; padding: 32px; flex: 1; max-width: calc(100vw - 220px); }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HEADER */
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+  .page-header h1 { font-size: 22px; font-weight: 700; }
+  .page-header p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+  /* CARDS */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .card .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .card .value { font-size: 28px; font-weight: 700; }
+  .card .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .card.accent { border-color: var(--accent); }
+  .card .trend { font-size: 12px; margin-top: 6px; }
+  .trend.up { color: var(--green); }
+  .trend.down { color: var(--red); }
+
+  /* GOAL BAR */
+  .goal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 28px; }
+  .goal-card .goal-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .goal-card .goal-title { font-size: 15px; font-weight: 600; }
+  .goal-card .goal-amount { font-size: 13px; color: var(--muted); }
+  .progress-bar { height: 12px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .6s ease; }
+  .goal-stats { display: flex; gap: 28px; margin-top: 14px; }
+  .goal-stat { font-size: 13px; }
+  .goal-stat .gs-val { font-weight: 700; font-size: 16px; }
+  .goal-stat .gs-lbl { color: var(--muted); font-size: 11px; }
+
+  /* TABLES */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--surface2); }
+  td { padding: 13px 16px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(108,99,255,.05); }
+  .empty-row td { text-align: center; color: var(--muted); padding: 36px; font-size: 13px; }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: rgba(0,230,118,.15); color: var(--green); }
+  .badge-yellow { background: rgba(255,214,0,.15); color: var(--yellow); }
+  .badge-red { background: rgba(255,82,82,.15); color: var(--red); }
+  .badge-blue { background: rgba(108,99,255,.15); color: var(--accent); }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #7c75ff; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn-danger { background: rgba(255,82,82,.15); color: var(--red); border: 1px solid rgba(255,82,82,.3); }
+  .btn-danger:hover { background: rgba(255,82,82,.25); }
+  .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+  .btn-icon { padding: 7px 10px; }
+
+  /* MODALS */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 100; align-items: center; justify-content: center; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-size: 18px; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+  /* FORMS */
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
+  input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 14px; outline: none; transition: border-color .15s; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--surface); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* INVOICE PRINT */
+  .invoice-preview { background: #fff; color: #111; padding: 40px; border-radius: 8px; font-family: 'Segoe UI', sans-serif; max-width: 680px; }
+  .invoice-preview h1 { font-size: 28px; color: #6c63ff; margin-bottom: 4px; }
+  .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+  .inv-meta { text-align: right; font-size: 13px; color: #555; }
+  .inv-meta .inv-num { font-size: 18px; font-weight: 700; color: #111; }
+  .inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+  .inv-party h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #999; margin-bottom: 6px; }
+  .inv-party p { font-size: 14px; line-height: 1.5; }
+  .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  .inv-table th { background: #f5f5f5; padding: 10px 14px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #666; }
+  .inv-table td { padding: 12px 14px; border-bottom: 1px solid #eee; font-size: 14px; }
+  .inv-totals { text-align: right; }
+  .inv-totals .total-row { display: flex; justify-content: flex-end; gap: 40px; padding: 6px 0; font-size: 14px; }
+  .inv-totals .grand-total { font-size: 20px; font-weight: 700; color: #6c63ff; border-top: 2px solid #eee; padding-top: 10px; margin-top: 4px; }
+  .inv-footer { margin-top: 32px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+
+  /* SERVICES GRID */
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .service-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .service-card .svc-name { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+  .service-card .svc-price { font-size: 22px; font-weight: 800; color: var(--accent2); margin-bottom: 8px; }
+  .service-card .svc-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+  .service-card .svc-actions { display: flex; gap: 8px; }
+
+  /* WEEK SELECTOR */
+  .week-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .week-nav span { font-size: 14px; font-weight: 600; min-width: 160px; text-align: center; }
+
+  /* NOTIFICATION */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: 14px; z-index: 999; transform: translateY(100px); opacity: 0; transition: all .3s; display: flex; align-items: center; gap: 10px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--green); }
+  .toast.error { border-color: var(--red); }
+
+  /* MOBILE BOTTOM NAV */
+  .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 200; padding: 4px 0 8px; }
+  .mobile-nav .mnav-items { display: flex; justify-content: space-around; }
+  .mobile-nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; color: var(--muted); text-decoration: none; font-size: 10px; font-weight: 500; flex: 1; }
+  .mobile-nav a.active { color: var(--accent); }
+  .mobile-nav a .mn-icon { font-size: 20px; line-height: 1; }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none !important; }
+    .mobile-nav { display: block !important; }
+    main { margin-left: 0 !important; padding: 16px !important; padding-bottom: 84px !important; max-width: 100vw !important; width: 100% !important; }
+    .form-row { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .week-nav { width: 100%; justify-content: space-between; }
+    .goal-stats { flex-wrap: wrap; gap: 14px; }
+    .cards { grid-template-columns: 1fr 1fr; }
+    div[style*="grid-template-columns:1fr 1fr"] { display: block !important; }
+    div[style*="grid-template-columns:1fr 1fr"] > div { margin-bottom: 20px; }
+    table { font-size: 12px; }
+    td, th { padding: 9px 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <div class="logo">Hosting<span>Pro</span></div>
+    <a href="#" class="active" onclick="nav('dashboard',this)"><span class="icon">📊</span> Dashboard</a>
+    <a href="#" onclick="nav('services',this)"><span class="icon">⚙️</span> Services</a>
+    <a href="#" onclick="nav('clients',this)"><span class="icon">👥</span> Clients</a>
+    <a href="#" onclick="nav('invoices',this)"><span class="icon">🧾</span> Invoices</a>
+    <a href="#" onclick="nav('earnings',this)"><span class="icon">💰</span> Earnings</a>
+    <div class="divider"></div>
+    <a href="#" onclick="nav('pitch',this)"><span class="icon">📣</span> Pitch Scripts</a>
+    <a href="#" onclick="nav('settings',this)"><span class="icon">⚙️</span> Settings</a>
+  </nav>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p id="dash-week-label">This week</p>
+        </div>
+        <div class="week-nav">
+          <button class="btn btn-secondary btn-sm" onclick="changeWeek(-1)">◀ Prev</button>
+          <span id="week-display"></span>
+          <button class="btn btn-secondary btn-sm" onclick="changeWeek(1)">Next ▶</button>
+        </div>
+      </div>
+
+      <div class="goal-card">
+        <div class="goal-header">
+          <div class="goal-title">💸 Weekly Goal Progress</div>
+          <div class="goal-amount" id="goal-amount-label">$0 / $1,000</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="goal-progress" style="width:0%"></div></div>
+        <div class="goal-stats">
+          <div class="goal-stat"><div class="gs-val" id="gs-earned">$0</div><div class="gs-lbl">Earned this week</div></div>
+          <div class="goal-stat"><div class="gs-val" id="gs-remaining">$1,000</div><div class="gs-lbl">Still needed</div></div>
+          <div class="goal-stat"><div class="gs-val" id="gs-clients">0</div><div class="gs-lbl">Active clients</div></div>
+          <div class="goal-stat"><div class="gs-val" id="gs-invoices">0</div><div class="gs-lbl">Unpaid invoices</div></div>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card"><div class="label">Total Earned (All Time)</div><div class="value" id="dash-total">$0</div></div>
+        <div class="card"><div class="label">This Month</div><div class="value" id="dash-month">$0</div></div>
+        <div class="card"><div class="label">Avg Deal Size</div><div class="value" id="dash-avg">$0</div></div>
+        <div class="card"><div class="label">Deals to Close</div><div class="value" id="dash-pipeline">0</div><div class="sub">to hit goal</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <h2 style="font-size:15px;margin-bottom:14px">Recent Invoices</h2>
+          <div class="table-wrap">
+            <table id="dash-inv-table">
+              <thead><tr><th>Client</th><th>Amount</th><th>Status</th></tr></thead>
+              <tbody id="dash-inv-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h2 style="font-size:15px;margin-bottom:14px">Top Services</h2>
+          <div class="table-wrap">
+            <table><thead><tr><th>Service</th><th>Price</th></tr></thead>
+            <tbody id="dash-svc-body"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="page" id="page-services">
+      <div class="page-header">
+        <div><h1>Services</h1><p>Your self-hosting service packages</p></div>
+        <button class="btn btn-primary" onclick="openModal('modal-service')">+ Add Service</button>
+      </div>
+      <div class="services-grid" id="services-grid"></div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="page" id="page-clients">
+      <div class="page-header">
+        <div><h1>Clients</h1><p>Manage your client relationships</p></div>
+        <button class="btn btn-primary" onclick="openModal('modal-client')">+ Add Client</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Status</th><th>Total Paid</th><th>Actions</th></tr></thead>
+        <tbody id="clients-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- INVOICES -->
+    <div class="page" id="page-invoices">
+      <div class="page-header">
+        <div><h1>Invoices</h1><p>Create and track invoices</p></div>
+        <button class="btn btn-primary" onclick="openModal('modal-invoice')">+ New Invoice</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Invoice #</th><th>Client</th><th>Service</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="invoices-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- EARNINGS -->
+    <div class="page" id="page-earnings">
+      <div class="page-header">
+        <div><h1>Earnings</h1><p>Track all payments received</p></div>
+        <button class="btn btn-primary" onclick="openModal('modal-payment')">+ Log Payment</button>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="label">This Week</div><div class="value" id="earn-week">$0</div></div>
+        <div class="card"><div class="label">This Month</div><div class="value" id="earn-month">$0</div></div>
+        <div class="card"><div class="label">This Year</div><div class="value" id="earn-year">$0</div></div>
+        <div class="card"><div class="label">All Time</div><div class="value" id="earn-all">$0</div></div>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Date</th><th>Client</th><th>Description</th><th>Amount</th><th>Method</th></tr></thead>
+        <tbody id="earnings-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- PITCH SCRIPTS -->
+    <div class="page" id="page-pitch">
+      <div class="page-header"><div><h1>Pitch Scripts</h1><p>Ready-to-use outreach templates</p></div></div>
+      <div style="display:grid;gap:16px" id="pitch-list"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header"><div><h1>Settings</h1><p>Configure your business info</p></div></div>
+      <div class="card" style="max-width:520px">
+        <div class="form-group"><label>Your Name</label><input id="set-name" placeholder="John Smith"></div>
+        <div class="form-group"><label>Business Name</label><input id="set-biz" placeholder="Smith Hosting Services"></div>
+        <div class="form-group"><label>Email</label><input id="set-email" placeholder="john@example.com"></div>
+        <div class="form-group"><label>Phone</label><input id="set-phone" placeholder="+1 (555) 000-0000"></div>
+        <div class="form-group"><label>Weekly Income Goal ($)</label><input id="set-goal" type="number" value="1000" min="100"></div>
+        <div class="form-group"><label>Payment Instructions (for invoices)</label><textarea id="set-payment">PayPal: you@paypal.com | Venmo: @yourhandle | Bank transfer: ask for details</textarea></div>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+
+<!-- Service Modal -->
+<div class="modal-bg" id="modal-service">
+  <div class="modal">
+    <h2 id="svc-modal-title">Add Service</h2>
+    <input type="hidden" id="svc-edit-id">
+    <div class="form-group"><label>Service Name</label><input id="svc-name" placeholder="e.g. Homelab Docker Setup"></div>
+    <div class="form-group"><label>Price ($)</label><input id="svc-price" type="number" placeholder="250"></div>
+    <div class="form-group"><label>Type</label>
+      <select id="svc-type">
+        <option value="one-time">One-time</option>
+        <option value="monthly">Monthly Retainer</option>
+        <option value="hourly">Hourly</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="svc-desc" placeholder="What's included..."></textarea></div>
+    <div class="form-group"><label>Delivery Time</label><input id="svc-delivery" placeholder="e.g. 3-5 days"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-service')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveService()">Save Service</button>
+    </div>
+  </div>
+</div>
+
+<!-- Client Modal -->
+<div class="modal-bg" id="modal-client">
+  <div class="modal">
+    <h2 id="cli-modal-title">Add Client</h2>
+    <input type="hidden" id="cli-edit-id">
+    <div class="form-row">
+      <div class="form-group"><label>First Name</label><input id="cli-fname" placeholder="Jane"></div>
+      <div class="form-group"><label>Last Name</label><input id="cli-lname" placeholder="Doe"></div>
+    </div>
+    <div class="form-group"><label>Email</label><input id="cli-email" placeholder="jane@example.com"></div>
+    <div class="form-group"><label>Company</label><input id="cli-company" placeholder="Acme Inc (optional)"></div>
+    <div class="form-group"><label>Phone</label><input id="cli-phone" placeholder="+1 (555) 000-0000"></div>
+    <div class="form-group"><label>Status</label>
+      <select id="cli-status">
+        <option value="lead">Lead</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="cli-notes" placeholder="How you met, their setup, etc."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-client')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Modal -->
+<div class="modal-bg" id="modal-invoice">
+  <div class="modal">
+    <h2>New Invoice</h2>
+    <div class="form-group"><label>Client</label>
+      <select id="inv-client"></select>
+    </div>
+    <div class="form-group"><label>Service</label>
+      <select id="inv-service" onchange="autofillPrice()"></select>
+    </div>
+    <div class="form-group"><label>Custom Description (optional)</label><input id="inv-desc" placeholder="Leave blank to use service name"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Amount ($)</label><input id="inv-amount" type="number" placeholder="250"></div>
+      <div class="form-group"><label>Due Date</label><input id="inv-due" type="date"></div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="inv-notes" placeholder="Payment terms, scope details..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-invoice')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveInvoice()">Create Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-bg" id="modal-payment">
+  <div class="modal">
+    <h2>Log Payment</h2>
+    <div class="form-group"><label>Client</label><select id="pay-client"></select></div>
+    <div class="form-group"><label>Amount ($)</label><input id="pay-amount" type="number" placeholder="500"></div>
+    <div class="form-group"><label>Date</label><input id="pay-date" type="date"></div>
+    <div class="form-group"><label>Description</label><input id="pay-desc" placeholder="e.g. Docker setup — Homelab"></div>
+    <div class="form-group"><label>Payment Method</label>
+      <select id="pay-method">
+        <option>PayPal</option><option>Venmo</option><option>Bank Transfer</option>
+        <option>Cash</option><option>Stripe</option><option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Mark Invoice as Paid</label>
+      <select id="pay-invoice-link"><option value="">— none —</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-payment')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePayment()">Log Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Preview Modal -->
+<div class="modal-bg" id="modal-inv-preview">
+  <div class="modal" style="width:720px;max-width:95vw">
+    <div id="invoice-preview-content"></div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="closeModal('modal-inv-preview')">Close</button>
+      <button class="btn btn-primary" onclick="printInvoice()">🖨️ Print / Save PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-nav">
+  <div class="mnav-items">
+    <a href="#" class="active" onclick="nav('dashboard',this);mobileNav(this)"><span class="mn-icon">📊</span>Dashboard</a>
+    <a href="#" onclick="nav('services',this);mobileNav(this)"><span class="mn-icon">⚙️</span>Services</a>
+    <a href="#" onclick="nav('clients',this);mobileNav(this)"><span class="mn-icon">👥</span>Clients</a>
+    <a href="#" onclick="nav('invoices',this);mobileNav(this)"><span class="mn-icon">🧾</span>Invoices</a>
+    <a href="#" onclick="nav('earnings',this);mobileNav(this)"><span class="mn-icon">💰</span>Earnings</a>
+    <a href="#" onclick="nav('pitch',this);mobileNav(this)"><span class="mn-icon">📣</span>Pitch</a>
+  </div>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DB = {
+  get: k => JSON.parse(localStorage.getItem('hpro_'+k) || 'null'),
+  set: (k,v) => localStorage.setItem('hpro_'+k, JSON.stringify(v)),
+};
+
+function load(k, def) { return DB.get(k) ?? def; }
+function save(k, v) { DB.set(k, v); }
+
+let services = load('services', [
+  { id: 's1', name: 'Homelab Docker Setup', price: 250, type: 'one-time', desc: 'Full Docker + Portainer setup with your choice of 5 self-hosted apps (Nextcloud, Jellyfin, Bitwarden, etc.). Includes documentation.', delivery: '3–5 days' },
+  { id: 's2', name: 'VPS + Nginx Reverse Proxy', price: 199, type: 'one-time', desc: 'Configure a VPS with Nginx reverse proxy, SSL certificates (Let\'s Encrypt), and a subdomain for each service.', delivery: '1–2 days' },
+  { id: 's3', name: 'Monthly Maintenance Plan', price: 150, type: 'monthly', desc: 'Monthly check-ins, updates, backups monitoring, and 1 hour of support per month.', delivery: 'Ongoing' },
+  { id: 's4', name: 'Home Network + Pi-hole', price: 175, type: 'one-time', desc: 'Set up Pi-hole ad blocking, VLAN segmentation, and network-wide DNS filtering.', delivery: '2–3 days' },
+  { id: 's5', name: 'Cloud Backup Strategy', price: 125, type: 'one-time', desc: '3-2-1 backup strategy: local + offsite + cloud (Backblaze B2) with automated scheduling.', delivery: '1–2 days' },
+]);
+let clients = load('clients', []);
+let invoices = load('invoices', []);
+let payments = load('payments', []);
+let settings = load('settings', { name: '', biz: 'My Hosting Services', email: '', phone: '', goal: 1000, payment: 'PayPal: your@paypal.com' });
+
+let currentWeekOffset = 0;
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+const uid = () => Math.random().toString(36).slice(2,10);
+const fmt = n => '$' + Number(n).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:2});
+
+function weekRange(offset = 0) {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  return { start: monday, end: sunday };
+}
+
+function inWeek(dateStr, offset = 0) {
+  const { start, end } = weekRange(offset);
+  const d = new Date(dateStr);
+  return d >= start && d <= end;
+}
+
+function inMonth(dateStr) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+}
+
+function inYear(dateStr) {
+  const d = new Date(dateStr);
+  return d.getFullYear() === new Date().getFullYear();
+}
+
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = (type === 'success' ? '✅ ' : '❌ ') + msg;
+  el.className = 'toast show ' + type;
+  setTimeout(() => el.className = 'toast', 2600);
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'modal-invoice') populateInvoiceSelects();
+  if (id === 'modal-payment') populatePaymentSelects();
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close modal on background click
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function nav(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar a, .mobile-nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+  renderAll();
+}
+
+// ── WEEK NAV ─────────────────────────────────────────────────────────────────
+function changeWeek(dir) {
+  currentWeekOffset += dir;
+  renderAll();
+}
+
+function updateWeekDisplay() {
+  const { start, end } = weekRange(currentWeekOffset);
+  const fmt2 = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  document.getElementById('week-display').textContent = fmt2(start) + ' – ' + fmt2(end);
+  document.getElementById('dash-week-label').textContent =
+    currentWeekOffset === 0 ? 'Current week' :
+    currentWeekOffset === -1 ? 'Last week' :
+    `Week of ${fmt2(start)}`;
+}
+
+// ── SERVICES ─────────────────────────────────────────────────────────────────
+function saveService() {
+  const id = document.getElementById('svc-edit-id').value;
+  const svc = {
+    id: id || uid(),
+    name: document.getElementById('svc-name').value.trim(),
+    price: parseFloat(document.getElementById('svc-price').value) || 0,
+    type: document.getElementById('svc-type').value,
+    desc: document.getElementById('svc-desc').value.trim(),
+    delivery: document.getElementById('svc-delivery').value.trim(),
+  };
+  if (!svc.name) { toast('Enter a service name', 'error'); return; }
+  if (id) { const i = services.findIndex(s=>s.id===id); services[i]=svc; }
+  else services.push(svc);
+  save('services', services);
+  closeModal('modal-service');
+  clearServiceForm();
+  renderAll();
+  toast('Service saved!');
+}
+
+function editService(id) {
+  const s = services.find(s=>s.id===id);
+  document.getElementById('svc-edit-id').value = s.id;
+  document.getElementById('svc-name').value = s.name;
+  document.getElementById('svc-price').value = s.price;
+  document.getElementById('svc-type').value = s.type;
+  document.getElementById('svc-desc').value = s.desc;
+  document.getElementById('svc-delivery').value = s.delivery;
+  document.getElementById('svc-modal-title').textContent = 'Edit Service';
+  openModal('modal-service');
+}
+
+function deleteService(id) {
+  if (!confirm('Delete this service?')) return;
+  services = services.filter(s=>s.id!==id);
+  save('services', services);
+  renderAll();
+  toast('Service deleted');
+}
+
+function clearServiceForm() {
+  ['svc-edit-id','svc-name','svc-price','svc-desc','svc-delivery'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('svc-type').value='one-time';
+  document.getElementById('svc-modal-title').textContent='Add Service';
+}
+
+function renderServices() {
+  const grid = document.getElementById('services-grid');
+  if (!services.length) { grid.innerHTML = '<p style="color:var(--muted);font-size:14px">No services yet. Add your first service package.</p>'; return; }
+  grid.innerHTML = services.map(s => `
+    <div class="service-card">
+      <div class="svc-name">${s.name}</div>
+      <div class="svc-price">${fmt(s.price)} <span style="font-size:13px;font-weight:400;color:var(--muted)">/ ${s.type==='monthly'?'mo':s.type==='hourly'?'hr':'project'}</span></div>
+      <div class="svc-desc">${s.desc}</div>
+      ${s.delivery ? `<div style="font-size:12px;color:var(--muted);margin-bottom:12px">⏱ ${s.delivery}</div>` : ''}
+      <div class="svc-actions">
+        <button class="btn btn-secondary btn-sm" onclick="editService('${s.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteService('${s.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── CLIENTS ──────────────────────────────────────────────────────────────────
+function saveClient() {
+  const id = document.getElementById('cli-edit-id').value;
+  const c = {
+    id: id || uid(),
+    fname: document.getElementById('cli-fname').value.trim(),
+    lname: document.getElementById('cli-lname').value.trim(),
+    email: document.getElementById('cli-email').value.trim(),
+    company: document.getElementById('cli-company').value.trim(),
+    phone: document.getElementById('cli-phone').value.trim(),
+    status: document.getElementById('cli-status').value,
+    notes: document.getElementById('cli-notes').value.trim(),
+    created: id ? (clients.find(x=>x.id===id)?.created || new Date().toISOString()) : new Date().toISOString(),
+  };
+  if (!c.fname) { toast('Enter client name', 'error'); return; }
+  if (id) { const i = clients.findIndex(x=>x.id===id); clients[i]=c; }
+  else clients.push(c);
+  save('clients', clients);
+  closeModal('modal-client');
+  clearClientForm();
+  renderAll();
+  toast('Client saved!');
+}
+
+function editClient(id) {
+  const c = clients.find(x=>x.id===id);
+  document.getElementById('cli-edit-id').value = c.id;
+  document.getElementById('cli-fname').value = c.fname;
+  document.getElementById('cli-lname').value = c.lname;
+  document.getElementById('cli-email').value = c.email;
+  document.getElementById('cli-company').value = c.company;
+  document.getElementById('cli-phone').value = c.phone;
+  document.getElementById('cli-status').value = c.status;
+  document.getElementById('cli-notes').value = c.notes;
+  document.getElementById('cli-modal-title').textContent = 'Edit Client';
+  openModal('modal-client');
+}
+
+function deleteClient(id) {
+  if (!confirm('Delete client? Their invoices and payments will remain.')) return;
+  clients = clients.filter(c=>c.id!==id);
+  save('clients', clients);
+  renderAll();
+  toast('Client removed');
+}
+
+function clearClientForm() {
+  ['cli-edit-id','cli-fname','cli-lname','cli-email','cli-company','cli-phone','cli-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cli-status').value='lead';
+  document.getElementById('cli-modal-title').textContent='Add Client';
+}
+
+function clientName(id) {
+  const c = clients.find(x=>x.id===id);
+  return c ? `${c.fname} ${c.lname}` : 'Unknown';
+}
+
+function clientTotal(id) {
+  return payments.filter(p=>p.clientId===id).reduce((s,p)=>s+p.amount, 0);
+}
+
+function renderClients() {
+  const tbody = document.getElementById('clients-body');
+  if (!clients.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No clients yet. Add your first client!</td></tr>'; return; }
+  tbody.innerHTML = clients.map(c => {
+    const statusMap = { active:'badge-green', lead:'badge-yellow', inactive:'badge-red' };
+    return `<tr>
+      <td><strong>${c.fname} ${c.lname}</strong></td>
+      <td>${c.email||'—'}</td>
+      <td>${c.company||'—'}</td>
+      <td><span class="badge ${statusMap[c.status]||'badge-blue'}">${c.status}</span></td>
+      <td>${fmt(clientTotal(c.id))}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-secondary btn-sm" onclick="editClient('${c.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">✕</button>
+      </td></tr>`;
+  }).join('');
+}
+
+// ── INVOICES ─────────────────────────────────────────────────────────────────
+function populateInvoiceSelects() {
+  const cs = document.getElementById('inv-client');
+  cs.innerHTML = clients.map(c=>`<option value="${c.id}">${c.fname} ${c.lname}</option>`).join('') || '<option value="">— add clients first —</option>';
+  const ss = document.getElementById('inv-service');
+  ss.innerHTML = '<option value="">— custom —</option>' + services.map(s=>`<option value="${s.id}">${s.name} (${fmt(s.price)})</option>`).join('');
+  const due = document.getElementById('inv-due');
+  if (!due.value) { const d = new Date(); d.setDate(d.getDate()+14); due.value = d.toISOString().split('T')[0]; }
+}
+
+function autofillPrice() {
+  const id = document.getElementById('inv-service').value;
+  const s = services.find(x=>x.id===id);
+  if (s) document.getElementById('inv-amount').value = s.price;
+}
+
+function nextInvoiceNum() {
+  const nums = invoices.map(i=>parseInt(i.num)||0);
+  return String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4,'0');
+}
+
+function saveInvoice() {
+  const clientId = document.getElementById('inv-client').value;
+  if (!clientId) { toast('Select a client', 'error'); return; }
+  const amount = parseFloat(document.getElementById('inv-amount').value);
+  if (!amount) { toast('Enter an amount', 'error'); return; }
+  const svcId = document.getElementById('inv-service').value;
+  const svc = services.find(s=>s.id===svcId);
+  const inv = {
+    id: uid(), num: nextInvoiceNum(),
+    clientId, svcId,
+    desc: document.getElementById('inv-desc').value.trim() || (svc?.name || 'Services'),
+    amount,
+    due: document.getElementById('inv-due').value,
+    notes: document.getElementById('inv-notes').value.trim(),
+    status: 'unpaid',
+    created: new Date().toISOString(),
+  };
+  invoices.push(inv);
+  save('invoices', invoices);
+  closeModal('modal-invoice');
+  ['inv-desc','inv-amount','inv-notes'].forEach(id=>document.getElementById(id).value='');
+  renderAll();
+  toast('Invoice #' + inv.num + ' created!');
+}
+
+function markPaid(id) {
+  const inv = invoices.find(i=>i.id===id);
+  inv.status = 'paid';
+  inv.paidAt = new Date().toISOString();
+  save('invoices', invoices);
+  // Auto-log payment
+  payments.push({ id: uid(), clientId: inv.clientId, amount: inv.amount, date: new Date().toISOString().split('T')[0], desc: inv.desc + ' (Inv #' + inv.num + ')', method: 'Invoice', invoiceId: id });
+  save('payments', payments);
+  renderAll();
+  toast('Marked as paid & payment logged!');
+}
+
+function voidInvoice(id) {
+  if (!confirm('Void this invoice?')) return;
+  invoices.find(i=>i.id===id).status = 'void';
+  save('invoices', invoices);
+  renderAll();
+  toast('Invoice voided');
+}
+
+function previewInvoice(id) {
+  const inv = invoices.find(i=>i.id===id);
+  const client = clients.find(c=>c.id===inv.clientId);
+  const s = settings;
+  const tax = 0; // no tax for simplicity
+  const html = `
+  <div class="invoice-preview" id="print-area">
+    <div class="inv-header">
+      <div><h1>${s.biz || 'My Hosting Services'}</h1><div style="font-size:13px;color:#666;margin-top:4px">${s.email||''} ${s.phone ? '· '+s.phone : ''}</div></div>
+      <div class="inv-meta">
+        <div class="inv-num">INVOICE #${inv.num}</div>
+        <div>Issued: ${new Date(inv.created).toLocaleDateString()}</div>
+        <div>Due: ${new Date(inv.due+'T12:00:00').toLocaleDateString()}</div>
+        <div style="margin-top:6px"><span class="badge ${inv.status==='paid'?'badge-green':inv.status==='void'?'badge-red':'badge-yellow'}">${inv.status.toUpperCase()}</span></div>
+      </div>
+    </div>
+    <div class="inv-parties">
+      <div class="inv-party"><h3>From</h3><p><strong>${s.name || s.biz || 'Your Name'}</strong><br>${s.biz||''}<br>${s.email||''}</p></div>
+      <div class="inv-party"><h3>Bill To</h3><p><strong>${client ? client.fname+' '+client.lname : 'Client'}</strong><br>${client?.company||''}<br>${client?.email||''}</p></div>
+    </div>
+    <table class="inv-table">
+      <thead><tr><th>Description</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody><tr><td>${inv.desc}</td><td style="text-align:right">${fmt(inv.amount)}</td></tr></tbody>
+    </table>
+    <div class="inv-totals">
+      <div class="total-row"><span>Subtotal</span><span>${fmt(inv.amount)}</span></div>
+      <div class="total-row grand-total"><span>Total Due</span><span>${fmt(inv.amount)}</span></div>
+    </div>
+    ${inv.notes ? `<div style="margin-top:20px;font-size:13px;color:#555"><strong>Notes:</strong> ${inv.notes}</div>` : ''}
+    <div class="inv-footer">
+      <strong>Payment:</strong> ${s.payment || 'Contact for payment details'}<br>
+      Thank you for your business!
+    </div>
+  </div>`;
+  document.getElementById('invoice-preview-content').innerHTML = html;
+  openModal('modal-inv-preview');
+}
+
+function printInvoice() {
+  const content = document.getElementById('print-area').innerHTML;
+  const win = window.open('', '_blank');
+  win.document.write(`<html><head><title>Invoice</title><style>
+    body{font-family:'Segoe UI',sans-serif;padding:40px;color:#111}
+    .badge{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;display:inline-block}
+    .badge-green{background:#e8f5e9;color:#2e7d32}.badge-yellow{background:#fffde7;color:#f57f17}.badge-red{background:#ffebee;color:#c62828}
+    .inv-header{display:flex;justify-content:space-between;margin-bottom:32px}
+    h1{color:#6c63ff;font-size:28px}.inv-meta{text-align:right;font-size:13px;color:#555}
+    .inv-num{font-size:18px;font-weight:700;color:#111}
+    .inv-parties{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px}
+    .inv-party h3{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#999;margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;margin-bottom:24px}
+    th{background:#f5f5f5;padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#666}
+    td{padding:12px 14px;border-bottom:1px solid #eee;font-size:14px}
+    .inv-totals{text-align:right}.total-row{display:flex;justify-content:flex-end;gap:40px;padding:6px 0;font-size:14px}
+    .grand-total{font-size:20px;font-weight:700;color:#6c63ff;border-top:2px solid #eee;padding-top:10px;margin-top:4px}
+    .inv-footer{margin-top:32px;padding-top:20px;border-top:1px solid #eee;font-size:12px;color:#999}
+  </style></head><body>${content}</body></html>`);
+  win.document.close(); win.print();
+}
+
+function renderInvoices() {
+  const tbody = document.getElementById('invoices-body');
+  if (!invoices.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No invoices yet.</td></tr>'; return; }
+  const sorted = [...invoices].sort((a,b) => new Date(b.created)-new Date(a.created));
+  const statusMap = { paid: 'badge-green', unpaid: 'badge-yellow', void: 'badge-red', overdue: 'badge-red' };
+  tbody.innerHTML = sorted.map(inv => {
+    const overdue = inv.status === 'unpaid' && new Date(inv.due+'T12:00:00') < new Date();
+    const status = overdue ? 'overdue' : inv.status;
+    return `<tr>
+      <td><strong>#${inv.num}</strong></td>
+      <td>${clientName(inv.clientId)}</td>
+      <td>${inv.desc}</td>
+      <td>${fmt(inv.amount)}</td>
+      <td>${new Date(inv.due+'T12:00:00').toLocaleDateString()}</td>
+      <td><span class="badge ${statusMap[status]}">${status}</span></td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="previewInvoice('${inv.id}')">View</button>
+        ${inv.status==='unpaid'?`<button class="btn btn-primary btn-sm" onclick="markPaid('${inv.id}')">Mark Paid</button>`:''}
+        ${inv.status==='unpaid'?`<button class="btn btn-danger btn-sm" onclick="voidInvoice('${inv.id}')">Void</button>`:''}
+      </td></tr>`;
+  }).join('');
+}
+
+// ── PAYMENTS ─────────────────────────────────────────────────────────────────
+function populatePaymentSelects() {
+  document.getElementById('pay-client').innerHTML = clients.map(c=>`<option value="${c.id}">${c.fname} ${c.lname}</option>`).join('') || '<option value="">— add clients first —</option>';
+  document.getElementById('pay-date').value = new Date().toISOString().split('T')[0];
+  const unpaid = invoices.filter(i=>i.status==='unpaid');
+  document.getElementById('pay-invoice-link').innerHTML = '<option value="">— none —</option>' + unpaid.map(i=>`<option value="${i.id}">#${i.num} – ${clientName(i.clientId)} – ${fmt(i.amount)}</option>`).join('');
+}
+
+function savePayment() {
+  const amount = parseFloat(document.getElementById('pay-amount').value);
+  if (!amount) { toast('Enter amount', 'error'); return; }
+  const invId = document.getElementById('pay-invoice-link').value;
+  const p = {
+    id: uid(),
+    clientId: document.getElementById('pay-client').value,
+    amount,
+    date: document.getElementById('pay-date').value,
+    desc: document.getElementById('pay-desc').value.trim() || 'Payment',
+    method: document.getElementById('pay-method').value,
+    invoiceId: invId || null,
+  };
+  if (invId) { const inv = invoices.find(i=>i.id===invId); if (inv) { inv.status='paid'; inv.paidAt=new Date().toISOString(); } }
+  payments.push(p);
+  save('payments', payments);
+  save('invoices', invoices);
+  closeModal('modal-payment');
+  ['pay-amount','pay-desc'].forEach(id=>document.getElementById(id).value='');
+  renderAll();
+  toast(fmt(amount) + ' payment logged!');
+}
+
+function renderEarnings() {
+  const weekPay = payments.filter(p=>inWeek(p.date, currentWeekOffset)).reduce((s,p)=>s+p.amount,0);
+  const monthPay = payments.filter(p=>inMonth(p.date)).reduce((s,p)=>s+p.amount,0);
+  const yearPay = payments.filter(p=>inYear(p.date)).reduce((s,p)=>s+p.amount,0);
+  const allPay = payments.reduce((s,p)=>s+p.amount,0);
+  document.getElementById('earn-week').textContent = fmt(weekPay);
+  document.getElementById('earn-month').textContent = fmt(monthPay);
+  document.getElementById('earn-year').textContent = fmt(yearPay);
+  document.getElementById('earn-all').textContent = fmt(allPay);
+
+  const tbody = document.getElementById('earnings-body');
+  if (!payments.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No payments logged yet.</td></tr>'; return; }
+  const sorted = [...payments].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  tbody.innerHTML = sorted.map(p=>`<tr>
+    <td>${new Date(p.date+'T12:00:00').toLocaleDateString()}</td>
+    <td>${clientName(p.clientId)}</td>
+    <td>${p.desc}</td>
+    <td style="color:var(--green);font-weight:700">${fmt(p.amount)}</td>
+    <td>${p.method}</td>
+  </tr>`).join('');
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const goal = settings.goal || 1000;
+  const weekEarned = payments.filter(p=>inWeek(p.date, currentWeekOffset)).reduce((s,p)=>s+p.amount,0);
+  const pct = Math.min(100, (weekEarned / goal) * 100);
+  document.getElementById('goal-progress').style.width = pct + '%';
+  document.getElementById('goal-amount-label').textContent = fmt(weekEarned) + ' / ' + fmt(goal);
+  document.getElementById('gs-earned').textContent = fmt(weekEarned);
+  document.getElementById('gs-remaining').textContent = fmt(Math.max(0, goal - weekEarned));
+  document.getElementById('gs-clients').textContent = clients.filter(c=>c.status==='active').length;
+  document.getElementById('gs-invoices').textContent = invoices.filter(i=>i.status==='unpaid').length;
+
+  const allPaid = payments.reduce((s,p)=>s+p.amount,0);
+  const monthPaid = payments.filter(p=>inMonth(p.date)).reduce((s,p)=>s+p.amount,0);
+  const avgDeal = payments.length ? allPaid / payments.length : 0;
+  const avgSvc = services.length ? services.reduce((s,sv)=>s+sv.price,0)/services.length : 250;
+  const needed = Math.ceil(Math.max(0, goal - weekEarned) / avgSvc);
+
+  document.getElementById('dash-total').textContent = fmt(allPaid);
+  document.getElementById('dash-month').textContent = fmt(monthPaid);
+  document.getElementById('dash-avg').textContent = fmt(avgDeal);
+  document.getElementById('dash-pipeline').textContent = needed || '0';
+
+  // Recent invoices
+  const recent = [...invoices].sort((a,b)=>new Date(b.created)-new Date(a.created)).slice(0,5);
+  const iBody = document.getElementById('dash-inv-body');
+  iBody.innerHTML = recent.length ? recent.map(i=>`<tr>
+    <td>${clientName(i.clientId)}</td>
+    <td>${fmt(i.amount)}</td>
+    <td><span class="badge ${i.status==='paid'?'badge-green':'badge-yellow'}">${i.status}</span></td>
+  </tr>`).join('') : '<tr class="empty-row"><td colspan="3">No invoices yet</td></tr>';
+
+  // Top services
+  const sBody = document.getElementById('dash-svc-body');
+  const sorted = [...services].sort((a,b)=>b.price-a.price).slice(0,5);
+  sBody.innerHTML = sorted.length ? sorted.map(s=>`<tr>
+    <td>${s.name}</td><td style="color:var(--accent2);font-weight:700">${fmt(s.price)}</td>
+  </tr>`).join('') : '<tr class="empty-row"><td colspan="2">No services</td></tr>';
+
+  updateWeekDisplay();
+}
+
+// ── PITCH SCRIPTS ────────────────────────────────────────────────────────────
+const pitches = [
+  {
+    title: '🚀 Cold DM (Reddit / Discord)',
+    tag: 'Outreach',
+    body: `Hey! I saw you're interested in self-hosting. I help people set up their own servers, Nextcloud, Jellyfin, Bitwarden, Pi-hole, and more — fully private, no subscriptions.
+
+I charge a flat project fee and most setups are done in under a week. Happy to do a free 15-min call to see if it's a fit.
+
+Interested?`
+  },
+  {
+    title: '📧 Email to Small Businesses',
+    tag: 'Email',
+    body: `Subject: Cut your SaaS costs with self-hosted infrastructure
+
+Hi [Name],
+
+Most small businesses pay $200–500/month in SaaS fees for tools they could run themselves for under $20/month.
+
+I specialize in setting up self-hosted alternatives: file storage, password managers, project management, and more — on your own server or VPS.
+
+One-time setup fee, no monthly cost, full ownership.
+
+Would a quick 15-minute call make sense this week?
+
+[Your name]`
+  },
+  {
+    title: '💬 Nextdoor / Local Facebook Group',
+    tag: 'Local',
+    body: `Hi neighbors! I'm a local tech professional who helps families and small businesses set up their own home servers.
+
+Services include:
+• Ad-blocking for your whole home network (Pi-hole)
+• Private cloud storage like Google Drive — on YOUR device
+• Family media server (think private Netflix)
+• Automatic backups for all your devices
+
+Starting at $125. Happy to come over or do it remotely. Drop a comment or DM me!`
+  },
+  {
+    title: '📌 Fiverr / Upwork Gig Description',
+    tag: 'Freelance Platform',
+    body: `🖥️ I'll set up your self-hosted server, homelab, or VPS
+
+Tired of paying monthly fees for cloud services? I'll help you run your own:
+✅ Nextcloud (Google Drive alternative)
+✅ Bitwarden (1Password alternative)
+✅ Jellyfin (Netflix alternative)
+✅ Paperless-ngx (document management)
+✅ Vaultwarden, Homer, Nginx Proxy Manager + more
+
+📦 Packages:
+Starter (3 apps): $199
+Pro (8 apps + SSL): $349
+Enterprise (unlimited + docs): $499
+
+⏱ Delivery: 3–7 days
+💬 Unlimited revisions during setup
+📚 Full documentation included`
+  },
+  {
+    title: '🤝 Referral Ask (to existing clients)',
+    tag: 'Referral',
+    body: `Hey [Name]! Hope your [service] setup is working well.
+
+Quick favor — do you know anyone else who might benefit from a self-hosted setup? Even a homelab, Pi-hole, or simple VPS?
+
+I'm giving a $25 referral bonus for anyone you send my way who books a project. Just let them mention your name.
+
+Appreciate you! And let me know if you ever need anything tweaked.`
+  },
+  {
+    title: '📊 "Math" Post (Social Media)',
+    tag: 'Content Marketing',
+    body: `Most people pay:
+• Dropbox: $12/mo
+• 1Password: $5/mo
+• Netflix: $18/mo
+• Google One: $10/mo
+• Notion: $8/mo
+
+Total: $53/month = $636/year
+
+I set up the self-hosted versions of all of these for $349 (one-time). Pays for itself in 6 months. 🏠☁️
+
+DM me "SELF-HOST" if you want details.`
+  },
+];
+
+function renderPitch() {
+  document.getElementById('pitch-list').innerHTML = pitches.map(p=>`
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:16px;font-weight:700">${p.title}</span>
+        <span class="badge badge-blue">${p.tag}</span>
+      </div>
+      <pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.6;color:var(--muted);background:var(--surface2);padding:16px;border-radius:8px;border:1px solid var(--border)">${p.body}</pre>
+      <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="copyPitch(${pitches.indexOf(p)})">Copy to Clipboard</button>
+    </div>`).join('');
+}
+
+function copyPitch(i) {
+  navigator.clipboard.writeText(pitches[i].body).then(()=>toast('Copied to clipboard!'));
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────────────────────
+function loadSettings() {
+  document.getElementById('set-name').value = settings.name || '';
+  document.getElementById('set-biz').value = settings.biz || '';
+  document.getElementById('set-email').value = settings.email || '';
+  document.getElementById('set-phone').value = settings.phone || '';
+  document.getElementById('set-goal').value = settings.goal || 1000;
+  document.getElementById('set-payment').value = settings.payment || '';
+}
+
+function saveSettings() {
+  settings = {
+    name: document.getElementById('set-name').value.trim(),
+    biz: document.getElementById('set-biz').value.trim(),
+    email: document.getElementById('set-email').value.trim(),
+    phone: document.getElementById('set-phone').value.trim(),
+    goal: parseFloat(document.getElementById('set-goal').value) || 1000,
+    payment: document.getElementById('set-payment').value.trim(),
+  };
+  save('settings', settings);
+  renderAll();
+  toast('Settings saved!');
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────────────────────
+function renderAll() {
+  renderDashboard();
+  renderServices();
+  renderClients();
+  renderInvoices();
+  renderEarnings();
+  renderPitch();
+  loadSettings();
+}
+
+// ── MOBILE NAV SYNC ──────────────────────────────────────────────────────────
+function mobileNav(el) {
+  document.querySelectorAll('.mobile-nav a').forEach(a => a.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>

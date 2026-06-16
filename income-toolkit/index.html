@@ -144,10 +144,26 @@
   .toast.success { border-color: var(--green); }
   .toast.error { border-color: var(--red); }
 
+  /* MOBILE BOTTOM NAV */
+  .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 50; padding: 4px 0 env(safe-area-inset-bottom, 4px); }
+  .mobile-nav .mnav-items { display: flex; justify-content: space-around; }
+  .mobile-nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; color: var(--muted); text-decoration: none; font-size: 10px; font-weight: 500; flex: 1; }
+  .mobile-nav a.active { color: var(--accent); }
+  .mobile-nav a .mn-icon { font-size: 20px; }
+
   @media (max-width: 768px) {
     nav { display: none; }
-    main { margin-left: 0; padding: 16px; max-width: 100vw; }
+    .mobile-nav { display: block; }
+    main { margin-left: 0; padding: 16px; padding-bottom: 80px; max-width: 100vw; }
     .form-row { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .week-nav { width: 100%; justify-content: space-between; }
+    .goal-stats { flex-wrap: wrap; gap: 14px; }
+    .cards { grid-template-columns: 1fr 1fr; }
+    div[style*="grid-template-columns:1fr 1fr"] { display: block !important; }
+    div[style*="grid-template-columns:1fr 1fr"] > div { margin-bottom: 20px; }
+    table { font-size: 12px; }
+    td, th { padding: 9px 10px; }
   }
 </style>
 </head>
@@ -405,6 +421,18 @@
     </div>
   </div>
 </div>
+
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-nav">
+  <div class="mnav-items">
+    <a href="#" class="active" onclick="nav('dashboard',this);mobileNav(this)"><span class="mn-icon">📊</span>Dashboard</a>
+    <a href="#" onclick="nav('services',this);mobileNav(this)"><span class="mn-icon">⚙️</span>Services</a>
+    <a href="#" onclick="nav('clients',this);mobileNav(this)"><span class="mn-icon">👥</span>Clients</a>
+    <a href="#" onclick="nav('invoices',this);mobileNav(this)"><span class="mn-icon">🧾</span>Invoices</a>
+    <a href="#" onclick="nav('earnings',this);mobileNav(this)"><span class="mn-icon">💰</span>Earnings</a>
+    <a href="#" onclick="nav('pitch',this);mobileNav(this)"><span class="mn-icon">📣</span>Pitch</a>
+  </div>
+</nav>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
@@ -1036,6 +1064,12 @@ function renderAll() {
   renderEarnings();
   renderPitch();
   loadSettings();
+}
+
+// ── MOBILE NAV SYNC ──────────────────────────────────────────────────────────
+function mobileNav(el) {
+  document.querySelectorAll('.mobile-nav a').forEach(a => a.classList.remove('active'));
+  el.classList.add('active');
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────

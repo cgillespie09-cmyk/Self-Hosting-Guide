@@ -1,14 +1,13 @@
 import os
-import smtplib
 import json
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import urllib.request
+import urllib.error
 from .base import BaseAgent, AgentResult
 
 
 class EmailerAgent(BaseAgent):
     name: str = "emailer"
-    description: str = "Writes and sends cold outreach emails via Gmail."
+    description: str = "Writes and sends cold outreach emails via SendGrid."
     skills: list[str] = ["send email", "email", "outreach", "cold email", "contact", "send a message"]
 
     def _build_system_prompt(self) -> str:
@@ -21,14 +20,14 @@ class EmailerAgent(BaseAgent):
         )
 
     async def run(self, task: str, context: list[dict] = None) -> AgentResult:
-        gmail = os.environ.get("GMAIL_ADDRESS", "")
-        app_password = os.environ.get("GMAIL_APP_PASSWORD", "")
+        api_key = os.environ.get("SENDGRID_API_KEY", "")
+        from_email = os.environ.get("GMAIL_ADDRESS", "")
 
-        if not gmail or not app_password:
+        if not api_key or not from_email:
             return AgentResult(
-                output="Gmail not configured. Set GMAIL_ADDRESS and GMAIL_APP_PASSWORD in .env",
+                output="SendGrid not configured. Set SENDGRID_API_KEY and GMAIL_ADDRESS in .env",
                 success=False,
-                error="Missing Gmail credentials",
+                error="Missing SendGrid credentials",
             )
 
         try:
@@ -39,7 +38,7 @@ class EmailerAgent(BaseAgent):
             result = await self.provider.complete(messages, max_tokens=1024)
             raw = result.content.strip()
 
-            # Extract JSON (handle markdown code fences)
+            # Strip markdown code fences if present
             if "```" in raw:
                 raw = raw.split("```")[1]
                 if raw.startswith("json"):
@@ -52,12 +51,12 @@ class EmailerAgent(BaseAgent):
 
             if not to_addr or not body:
                 return AgentResult(
-                    output=f"Could not parse email fields from LLM output:\n{result.content}",
+                    output=f"Could not parse email fields:\n{result.content}",
                     success=False,
                     error="Missing to or body in LLM response",
                 )
 
-            self._send(gmail, app_password, to_addr, subject, body)
+            self._send_via_sendgrid(api_key, from_email, to_addr, subject, body)
 
             summary = f"Email sent to {to_addr}\nSubject: {subject}\n\n{body}"
             return AgentResult(
@@ -80,13 +79,23 @@ class EmailerAgent(BaseAgent):
                 error=str(e),
             )
 
-    def _send(self, gmail: str, password: str, to: str, subject: str, body: str):
-        msg = MIMEMultipart("alternative")
-        msg["From"] = gmail
-        msg["To"] = to
-        msg["Subject"] = subject
-        msg.attach(MIMEText(body, "plain"))
+    def _send_via_sendgrid(self, api_key: str, from_email: str, to: str, subject: str, body: str):
+        payload = json.dumps({
+            "personalizations": [{"to": [{"email": to}]}],
+            "from": {"email": from_email},
+            "subject": subject,
+            "content": [{"type": "text/plain", "value": body}],
+        }).encode("utf-8")
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(gmail, password)
-            server.sendmail(gmail, to, msg.as_string())
+        req = urllib.request.Request(
+            "https://api.sendgrid.com/v3/mail/send",
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            if resp.status not in (200, 202):
+                raise RuntimeError(f"SendGrid returned {resp.status}")

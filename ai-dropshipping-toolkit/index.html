@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DropAI — AI Dropshipping Company Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #ff7a45;
+    --accent2: #00d2ff;
+    --green: #00e676;
+    --yellow: #ffd600;
+    --red: #ff5252;
+    --text: #e8eaf6;
+    --muted: #7c83a8;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* LAYOUT */
+  .shell { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 40; overflow-y: auto; }
+  .sidebar .logo { padding: 0 24px 28px; font-size: 18px; font-weight: 700; color: var(--accent2); letter-spacing: -0.5px; }
+  .sidebar .logo span { color: var(--accent); }
+  .sidebar a { display: flex; align-items: center; gap: 10px; padding: 11px 24px; color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: all .15s; }
+  .sidebar a:hover, .sidebar a.active { color: var(--text); background: var(--surface2); }
+  .sidebar a.active { border-right: 3px solid var(--accent); }
+  .sidebar a .icon { font-size: 18px; width: 22px; text-align: center; }
+  .sidebar .divider { height: 1px; background: var(--border); margin: 12px 24px; }
+  main { margin-left: 220px; padding: 32px; flex: 1; max-width: calc(100vw - 220px); }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HEADER */
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
+  .page-header h1 { font-size: 22px; font-weight: 700; }
+  .page-header p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+  /* CARDS */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .card .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .card .value { font-size: 28px; font-weight: 700; }
+  .card .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .card.accent { border-color: var(--accent); }
+
+  /* GOAL BAR */
+  .goal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 28px; }
+  .goal-card .goal-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .goal-card .goal-title { font-size: 15px; font-weight: 600; }
+  .goal-card .goal-amount { font-size: 13px; color: var(--muted); }
+  .progress-bar { height: 12px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .6s ease; }
+  .goal-stats { display: flex; gap: 28px; margin-top: 14px; flex-wrap: wrap; }
+  .goal-stat { font-size: 13px; }
+  .goal-stat .gs-val { font-weight: 700; font-size: 16px; }
+  .goal-stat .gs-lbl { color: var(--muted); font-size: 11px; }
+
+  /* TABLES */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--surface2); white-space: nowrap; }
+  td { padding: 13px 16px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,122,69,.05); }
+  .empty-row td { text-align: center; color: var(--muted); padding: 36px; font-size: 13px; }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .badge-green { background: rgba(0,230,118,.15); color: var(--green); }
+  .badge-yellow { background: rgba(255,214,0,.15); color: var(--yellow); }
+  .badge-red { background: rgba(255,82,82,.15); color: var(--red); }
+  .badge-blue { background: rgba(0,210,255,.15); color: var(--accent2); }
+  .badge-orange { background: rgba(255,122,69,.15); color: var(--accent); }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #ff8f63; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn-danger { background: rgba(255,82,82,.15); color: var(--red); border: 1px solid rgba(255,82,82,.3); }
+  .btn-danger:hover { background: rgba(255,82,82,.25); }
+  .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* MODALS */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 100; align-items: center; justify-content: center; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-size: 18px; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+  /* FORMS */
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
+  input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 14px; outline: none; transition: border-color .15s; font-family: inherit; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--surface); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+  /* MARGIN PREVIEW */
+  .margin-preview { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: 13px; margin-bottom: 16px; display: flex; gap: 24px; flex-wrap: wrap; }
+  .margin-preview b { color: var(--accent2); }
+
+  /* PRODUCT GRID */
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .service-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .service-card .svc-name { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+  .service-card .svc-price { font-size: 22px; font-weight: 800; color: var(--accent2); margin-bottom: 8px; }
+  .service-card .svc-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+  .service-card .svc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* AI STUDIO */
+  .ai-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .ai-tab { padding: 9px 16px; border-radius: 99px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .ai-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .ai-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .ai-status { font-size: 12px; padding: 8px 14px; border-radius: 8px; margin-bottom: 18px; display: inline-block; }
+  .ai-status.live { background: rgba(0,230,118,.12); color: var(--green); border: 1px solid rgba(0,230,118,.3); }
+  .ai-status.offline { background: rgba(255,214,0,.12); color: var(--yellow); border: 1px solid rgba(255,214,0,.3); }
+  .ai-result { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; min-height: 200px; }
+  .ai-result.loading { color: var(--muted); font-style: italic; }
+
+  /* CHECKLIST */
+  .checklist-group { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; }
+  .checklist-group h3 { font-size: 14px; margin-bottom: 12px; color: var(--accent2); }
+  .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .check-item:last-child { border-bottom: none; }
+  .check-item input[type=checkbox] { width: auto; margin-top: 3px; accent-color: var(--accent); cursor: pointer; }
+  .check-item label { text-transform: none; font-weight: 400; font-size: 14px; color: var(--text); margin-bottom: 0; flex: 1; cursor: pointer; }
+  .check-item.done label { color: var(--muted); text-decoration: line-through; }
+  .check-item .ci-link { font-size: 11px; color: var(--accent2); text-decoration: none; }
+
+  /* NOTIFICATION */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: 14px; z-index: 999; transform: translateY(100px); opacity: 0; transition: all .3s; display: flex; align-items: center; gap: 10px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--green); }
+  .toast.error { border-color: var(--red); }
+
+  /* MOBILE BOTTOM NAV */
+  .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 200; padding: 4px 0 8px; overflow-x: auto; }
+  .mobile-nav .mnav-items { display: flex; justify-content: space-around; min-width: 600px; }
+  .mobile-nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; color: var(--muted); text-decoration: none; font-size: 10px; font-weight: 500; flex: 1; }
+  .mobile-nav a.active { color: var(--accent); }
+  .mobile-nav a .mn-icon { font-size: 20px; line-height: 1; }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none !important; }
+    .mobile-nav { display: block !important; }
+    main { margin-left: 0 !important; padding: 16px !important; padding-bottom: 84px !important; max-width: 100vw !important; width: 100% !important; }
+    .form-row { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .goal-stats { flex-wrap: wrap; gap: 14px; }
+    .cards { grid-template-columns: 1fr 1fr; }
+    .ai-layout { grid-template-columns: 1fr; }
+    table { font-size: 12px; }
+    td, th { padding: 9px 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <div class="logo">Drop<span>AI</span></div>
+    <a href="#" class="active" onclick="nav('dashboard',this)"><span class="icon">📊</span> Dashboard</a>
+    <a href="#" onclick="nav('products',this)"><span class="icon">📦</span> Products</a>
+    <a href="#" onclick="nav('orders',this)"><span class="icon">🧾</span> Orders</a>
+    <a href="#" onclick="nav('suppliers',this)"><span class="icon">🚚</span> Suppliers</a>
+    <div class="divider"></div>
+    <a href="#" onclick="nav('ai',this)"><span class="icon">🤖</span> AI Studio</a>
+    <a href="#" onclick="nav('marketing',this)"><span class="icon">📣</span> Marketing</a>
+    <a href="#" onclick="nav('expenses',this)"><span class="icon">💰</span> Expenses</a>
+    <div class="divider"></div>
+    <a href="#" onclick="nav('checklist',this)"><span class="icon">✅</span> Launch Checklist</a>
+    <a href="#" onclick="nav('settings',this)"><span class="icon">⚙️</span> Settings</a>
+  </nav>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div><h1>Dashboard</h1><p id="dash-sub">Your AI dropshipping company at a glance</p></div>
+      </div>
+
+      <div class="goal-card">
+        <div class="goal-header">
+          <div class="goal-title">💸 Weekly Profit Goal</div>
+          <div class="goal-amount" id="goal-amount-label">$0 / $1,000</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="goal-progress" style="width:0%"></div></div>
+        <div class="goal-stats">
+          <div class="goal-stat"><div class="gs-val" id="gs-earned">$0</div><div class="gs-lbl">Profit this week</div></div>
+          <div class="goal-stat"><div class="gs-val" id="gs-remaining">$1,000</div><div class="gs-lbl">Still needed</div></div>
+          <div class="goal-stat"><div class="gs-val" id="gs-orders">0</div><div class="gs-lbl">Orders this week</div></div>
+          <div class="goal-stat"><div class="gs-val" id="gs-products">0</div><div class="gs-lbl">Live products</div></div>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card"><div class="label">Total Revenue</div><div class="value" id="dash-rev">$0</div></div>
+        <div class="card"><div class="label">Total Profit</div><div class="value" id="dash-profit">$0</div></div>
+        <div class="card"><div class="label">Ad Spend</div><div class="value" id="dash-adspend">$0</div></div>
+        <div class="card"><div class="label">Avg Order Profit</div><div class="value" id="dash-avg">$0</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <h2 style="font-size:15px;margin-bottom:14px">Recent Orders</h2>
+          <div class="table-wrap">
+            <table><thead><tr><th>Product</th><th>Sale</th><th>Status</th></tr></thead>
+            <tbody id="dash-ord-body"></tbody></table>
+          </div>
+        </div>
+        <div>
+          <h2 style="font-size:15px;margin-bottom:14px">Best Margin Products</h2>
+          <div class="table-wrap">
+            <table><thead><tr><th>Product</th><th>Margin</th></tr></thead>
+            <tbody id="dash-prod-body"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="page" id="page-products">
+      <div class="page-header">
+        <div><h1>Products</h1><p>Your product catalog with cost &amp; margin tracking</p></div>
+        <button class="btn btn-primary" onclick="openProductModal()">+ Add Product</button>
+      </div>
+      <div class="services-grid" id="products-grid"></div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="page" id="page-orders">
+      <div class="page-header">
+        <div><h1>Orders</h1><p>Track customer orders and fulfillment</p></div>
+        <button class="btn btn-primary" onclick="openModal('modal-order')">+ Add Order</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Date</th><th>Product</th><th>Customer</th><th>Sale</th><th>Cost</th><th>Profit</th><th>Status</th><th>Tracking</th><th>Actions</th></tr></thead>
+        <tbody id="orders-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- SUPPLIERS -->
+    <div class="page" id="page-suppliers">
+      <div class="page-header">
+        <div><h1>Suppliers</h1><p>Sourcing partners for fulfillment</p></div>
+        <button class="btn btn-primary" onclick="openModal('modal-supplier')">+ Add Supplier</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Platform</th><th>Contact</th><th>Ship Time</th><th>Products</th><th>Actions</th></tr></thead>
+        <tbody id="suppliers-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- AI STUDIO -->
+    <div class="page" id="page-ai">
+      <div class="page-header">
+        <div><h1>AI Studio</h1><p>AI-generated copy and decisions for your store</p></div>
+      </div>
+      <div class="ai-status offline" id="ai-status-banner">⚠️ Template mode — add an Anthropic API key in Settings to generate with real AI</div>
+      <div class="ai-tabs">
+        <div class="ai-tab active" onclick="setAiTool('desc',this)">📝 Product Description</div>
+        <div class="ai-tab" onclick="setAiTool('ad',this)">📢 Ad Copy</div>
+        <div class="ai-tab" onclick="setAiTool('reply',this)">💬 Customer Reply</div>
+        <div class="ai-tab" onclick="setAiTool('validate',this)">🔍 Product Validator</div>
+      </div>
+
+      <div class="ai-layout">
+        <div>
+          <!-- Description tool -->
+          <div id="ai-form-desc">
+            <div class="form-group"><label>Product Name</label><input id="ai-desc-name" placeholder="e.g. LED Galaxy Star Projector"></div>
+            <div class="form-group"><label>Key Features (one per line)</label><textarea id="ai-desc-features" placeholder="16 color modes&#10;Bluetooth speaker&#10;Remote control&#10;USB powered"></textarea></div>
+            <div class="form-group"><label>Tone</label>
+              <select id="ai-desc-tone"><option value="persuasive">Persuasive / Hype</option><option value="minimal">Minimal / Premium</option><option value="playful">Playful / Fun</option></select>
+            </div>
+          </div>
+          <!-- Ad copy tool -->
+          <div id="ai-form-ad" style="display:none">
+            <div class="form-group"><label>Product Name</label><input id="ai-ad-name" placeholder="e.g. Posture Corrector Belt"></div>
+            <div class="form-group"><label>Target Audience</label><input id="ai-ad-audience" placeholder="e.g. office workers with back pain, 30-55"></div>
+            <div class="form-group"><label>Main Pain Point / Hook</label><input id="ai-ad-pain" placeholder="e.g. constant back pain from sitting all day"></div>
+            <div class="form-group"><label>Platform</label>
+              <select id="ai-ad-platform"><option value="Facebook/Instagram">Facebook / Instagram</option><option value="TikTok">TikTok</option><option value="Google Search">Google Search</option></select>
+            </div>
+          </div>
+          <!-- Customer reply tool -->
+          <div id="ai-form-reply" style="display:none">
+            <div class="form-group"><label>Issue Type</label>
+              <select id="ai-reply-issue">
+                <option value="shipping delay">Shipping Delay</option>
+                <option value="refund request">Refund Request</option>
+                <option value="wrong/damaged item">Wrong or Damaged Item</option>
+                <option value="where is my order">Where Is My Order</option>
+                <option value="general question">General Question</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Customer Name</label><input id="ai-reply-name" placeholder="e.g. Sarah"></div>
+            <div class="form-group"><label>Order # (optional)</label><input id="ai-reply-order" placeholder="e.g. #1042"></div>
+            <div class="form-group"><label>Extra Context (optional)</label><textarea id="ai-reply-context" placeholder="Anything specific to mention..."></textarea></div>
+          </div>
+          <!-- Validator tool -->
+          <div id="ai-form-validate" style="display:none">
+            <div class="form-group"><label>Product Name</label><input id="ai-val-name" placeholder="e.g. Mini Portable Blender"></div>
+            <div class="form-group"><label>Supplier Cost ($)</label><input id="ai-val-cost" type="number" placeholder="6.50"></div>
+            <div class="form-group"><label>Planned Sell Price ($)</label><input id="ai-val-price" type="number" placeholder="24.99"></div>
+            <div class="form-group"><label>Competitor / Market Price ($, optional)</label><input id="ai-val-competitor" type="number" placeholder="29.99"></div>
+            <div class="form-group"><label>Notes (trend signals, saturation, shipping time, etc.)</label><textarea id="ai-val-notes" placeholder="e.g. trending on TikTok, 3 competitors running ads, 12-day shipping"></textarea></div>
+          </div>
+
+          <button class="btn btn-primary" onclick="runAiTool()" id="ai-generate-btn">✨ Generate</button>
+        </div>
+        <div>
+          <div class="ai-result" id="ai-result">Your AI-generated result will appear here.</div>
+          <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="copyAiResult()">Copy Result</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MARKETING -->
+    <div class="page" id="page-marketing">
+      <div class="page-header"><div><h1>Marketing</h1><p>Ready-to-use scripts and playbooks</p></div></div>
+      <div style="display:grid;gap:16px" id="marketing-list"></div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="page" id="page-expenses">
+      <div class="page-header">
+        <div><h1>Expenses</h1><p>Ad spend and other costs (revenue/COGS comes from Orders)</p></div>
+        <button class="btn btn-primary" onclick="openModal('modal-expense')">+ Log Expense</button>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="label">Total Ad Spend</div><div class="value" id="exp-ads">$0</div></div>
+        <div class="card"><div class="label">Other Expenses</div><div class="value" id="exp-other">$0</div></div>
+        <div class="card"><div class="label">Net Profit (after expenses)</div><div class="value" id="exp-net">$0</div></div>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Actions</th></tr></thead>
+        <tbody id="expenses-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div class="page" id="page-checklist">
+      <div class="page-header"><div><h1>Launch Checklist</h1><p>Everything to connect before you go live — do this last</p></div></div>
+      <div id="checklist-groups"></div>
+      <div class="card" style="margin-top:8px">
+        <div class="form-row">
+          <input id="ck-new-item" placeholder="Add a custom checklist item...">
+          <button class="btn btn-secondary" onclick="addChecklistItem()">+ Add Item</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header"><div><h1>Settings</h1><p>Configure your store and AI connection</p></div></div>
+      <div class="card" style="max-width:560px">
+        <div class="form-group"><label>Store / Brand Name</label><input id="set-store" placeholder="e.g. AuroraNest"></div>
+        <div class="form-group"><label>Niche</label><input id="set-niche" placeholder="e.g. home decor, pet gadgets, fitness"></div>
+        <div class="form-group"><label>Weekly Profit Goal ($)</label><input id="set-goal" type="number" value="1000" min="50"></div>
+        <div class="divider" style="height:1px;background:var(--border);margin:18px 0"></div>
+        <div class="form-group">
+          <label>Anthropic API Key (optional)</label>
+          <input id="set-anthropic-key" type="password" placeholder="sk-ant-...">
+          <div class="hint">Stored only in this browser's localStorage. Sent directly to Anthropic's API when you click Generate in AI Studio — never to any third-party server. Leave blank to use built-in templates instead of live AI generation.</div>
+        </div>
+        <div class="form-group"><label>AI Model</label>
+          <select id="set-ai-model">
+            <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (fast, cheap)</option>
+            <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (higher quality)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+
+<!-- Product Modal -->
+<div class="modal-bg" id="modal-product">
+  <div class="modal">
+    <h2 id="prod-modal-title">Add Product</h2>
+    <input type="hidden" id="prod-edit-id">
+    <div class="form-group"><label>Product Name</label><input id="prod-name" placeholder="e.g. LED Galaxy Star Projector"></div>
+    <div class="form-group"><label>Supplier</label><select id="prod-supplier"></select></div>
+    <div class="form-row">
+      <div class="form-group"><label>Supplier Cost ($)</label><input id="prod-cost" type="number" placeholder="6.50" oninput="updateMarginPreview()"></div>
+      <div class="form-group"><label>Sell Price ($)</label><input id="prod-price" type="number" placeholder="24.99" oninput="updateMarginPreview()"></div>
+    </div>
+    <div class="margin-preview" id="margin-preview">Profit: <b>$0.00</b> &nbsp;|&nbsp; Margin: <b>0%</b></div>
+    <div class="form-row">
+      <div class="form-group"><label>Ship Time</label><input id="prod-ship" placeholder="e.g. 7-12 days"></div>
+      <div class="form-group"><label>Status</label>
+        <select id="prod-status">
+          <option value="testing">Testing</option>
+          <option value="winning">Winning 🔥</option>
+          <option value="scaling">Scaling</option>
+          <option value="killed">Killed</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="prod-notes" placeholder="Research notes, ad angle, source link..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-product')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Modal -->
+<div class="modal-bg" id="modal-order">
+  <div class="modal">
+    <h2 id="ord-modal-title">Add Order</h2>
+    <input type="hidden" id="ord-edit-id">
+    <div class="form-group"><label>Product</label><select id="ord-product" onchange="autofillOrderPrice()"></select></div>
+    <div class="form-group"><label>Customer Name</label><input id="ord-customer" placeholder="e.g. Jane D."></div>
+    <div class="form-row">
+      <div class="form-group"><label>Sale Amount ($)</label><input id="ord-sale" type="number" placeholder="24.99"></div>
+      <div class="form-group"><label>Supplier Cost ($)</label><input id="ord-cost" type="number" placeholder="6.50"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Order Date</label><input id="ord-date" type="date"></div>
+      <div class="form-group"><label>Status</label>
+        <select id="ord-status">
+          <option value="new">New</option>
+          <option value="ordered">Ordered from Supplier</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="refunded">Refunded</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Tracking Number (optional)</label><input id="ord-tracking" placeholder="e.g. 1Z999AA10123456784"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-order')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveOrder()">Save Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- Supplier Modal -->
+<div class="modal-bg" id="modal-supplier">
+  <div class="modal">
+    <h2 id="sup-modal-title">Add Supplier</h2>
+    <input type="hidden" id="sup-edit-id">
+    <div class="form-group"><label>Supplier Name</label><input id="sup-name" placeholder="e.g. CJ Dropshipping Agent"></div>
+    <div class="form-group"><label>Platform</label>
+      <select id="sup-platform">
+        <option>CJ Dropshipping</option>
+        <option>AliExpress</option>
+        <option>Zendrop</option>
+        <option>AutoDS</option>
+        <option>Spocket</option>
+        <option>Local / Print-on-Demand</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Contact</label><input id="sup-contact" placeholder="email, WhatsApp, or account link"></div>
+    <div class="form-group"><label>Typical Ship Time</label><input id="sup-ship" placeholder="e.g. 7-15 days"></div>
+    <div class="form-group"><label>Notes</label><textarea id="sup-notes" placeholder="Reliability, MOQs, branding options..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-supplier')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSupplier()">Save Supplier</button>
+    </div>
+  </div>
+</div>
+
+<!-- Expense Modal -->
+<div class="modal-bg" id="modal-expense">
+  <div class="modal">
+    <h2>Log Expense</h2>
+    <div class="form-group"><label>Type</label>
+      <select id="exp-type"><option value="ad_spend">Ad Spend</option><option value="other">Other (tools, apps, fees)</option></select>
+    </div>
+    <div class="form-group"><label>Amount ($)</label><input id="exp-amount" type="number" placeholder="50"></div>
+    <div class="form-group"><label>Date</label><input id="exp-date" type="date"></div>
+    <div class="form-group"><label>Description</label><input id="exp-desc" placeholder="e.g. Meta Ads — Galaxy Projector campaign"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-expense')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveExpense()">Log Expense</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-nav">
+  <div class="mnav-items">
+    <a href="#" class="active" onclick="nav('dashboard',this);mobileNav(this)"><span class="mn-icon">📊</span>Home</a>
+    <a href="#" onclick="nav('products',this);mobileNav(this)"><span class="mn-icon">📦</span>Products</a>
+    <a href="#" onclick="nav('orders',this);mobileNav(this)"><span class="mn-icon">🧾</span>Orders</a>
+    <a href="#" onclick="nav('ai',this);mobileNav(this)"><span class="mn-icon">🤖</span>AI</a>
+    <a href="#" onclick="nav('marketing',this);mobileNav(this)"><span class="mn-icon">📣</span>Marketing</a>
+    <a href="#" onclick="nav('checklist',this);mobileNav(this)"><span class="mn-icon">✅</span>Launch</a>
+  </div>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DB = {
+  get: k => JSON.parse(localStorage.getItem('dst_'+k) || 'null'),
+  set: (k,v) => localStorage.setItem('dst_'+k, JSON.stringify(v)),
+};
+function load(k, def) { return DB.get(k) ?? def; }
+function save(k, v) { DB.set(k, v); }
+
+let suppliers = load('suppliers', [
+  { id: 'sp1', name: 'CJ Dropshipping Agent', platform: 'CJ Dropshipping', contact: 'cjdropshipping.com', ship: '7-15 days', notes: 'Free sourcing agent, US/EU warehouses available for faster shipping.' },
+]);
+let products = load('products', [
+  { id: 'p1', name: 'LED Galaxy Star Projector', supplierId: 'sp1', cost: 6.5, price: 24.99, ship: '7-12 days', status: 'testing', notes: 'Trending on TikTok in the home decor niche.', created: new Date().toISOString() },
+]);
+let orders = load('orders', []);
+let expenses = load('expenses', []);
+let checklist = load('checklist', null); // null = use defaults below
+let settings = load('settings', { store: '', niche: '', goal: 1000, anthropicKey: '', aiModel: 'claude-haiku-4-5-20251001' });
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+const uid = () => Math.random().toString(36).slice(2,10);
+const fmt = n => '$' + Number(n||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+function weekRange(offset = 0) {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  return { start: monday, end: sunday };
+}
+function inWeek(dateStr, offset = 0) {
+  const { start, end } = weekRange(offset);
+  const d = new Date(dateStr);
+  return d >= start && d <= end;
+}
+
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = (type === 'success' ? '✅ ' : '❌ ') + msg;
+  el.className = 'toast show ' + type;
+  setTimeout(() => el.className = 'toast', 2600);
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'modal-order') populateOrderSelects();
+  if (id === 'modal-expense') document.getElementById('exp-date').value = new Date().toISOString().split('T')[0];
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function nav(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar a, .mobile-nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+  renderAll();
+}
+function mobileNav(el) {
+  document.querySelectorAll('.mobile-nav a').forEach(a => a.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── SUPPLIERS ────────────────────────────────────────────────────────────────
+function saveSupplier() {
+  const id = document.getElementById('sup-edit-id').value;
+  const s = {
+    id: id || uid(),
+    name: document.getElementById('sup-name').value.trim(),
+    platform: document.getElementById('sup-platform').value,
+    contact: document.getElementById('sup-contact').value.trim(),
+    ship: document.getElementById('sup-ship').value.trim(),
+    notes: document.getElementById('sup-notes').value.trim(),
+  };
+  if (!s.name) { toast('Enter a supplier name', 'error'); return; }
+  if (id) { const i = suppliers.findIndex(x=>x.id===id); suppliers[i]=s; }
+  else suppliers.push(s);
+  save('suppliers', suppliers);
+  closeModal('modal-supplier');
+  clearSupplierForm();
+  renderAll();
+  toast('Supplier saved!');
+}
+function editSupplier(id) {
+  const s = suppliers.find(x=>x.id===id);
+  document.getElementById('sup-edit-id').value = s.id;
+  document.getElementById('sup-name').value = s.name;
+  document.getElementById('sup-platform').value = s.platform;
+  document.getElementById('sup-contact').value = s.contact;
+  document.getElementById('sup-ship').value = s.ship;
+  document.getElementById('sup-notes').value = s.notes;
+  document.getElementById('sup-modal-title').textContent = 'Edit Supplier';
+  openModal('modal-supplier');
+}
+function deleteSupplier(id) {
+  if (!confirm('Delete this supplier?')) return;
+  suppliers = suppliers.filter(x=>x.id!==id);
+  save('suppliers', suppliers);
+  renderAll();
+  toast('Supplier removed');
+}
+function clearSupplierForm() {
+  ['sup-edit-id','sup-name','sup-contact','sup-ship','sup-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sup-platform').value='CJ Dropshipping';
+  document.getElementById('sup-modal-title').textContent='Add Supplier';
+}
+function supplierName(id) { const s = suppliers.find(x=>x.id===id); return s ? s.name : '—'; }
+function renderSuppliers() {
+  const tbody = document.getElementById('suppliers-body');
+  if (!suppliers.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No suppliers yet. Add your sourcing partner.</td></tr>'; return; }
+  tbody.innerHTML = suppliers.map(s => `<tr>
+    <td><strong>${s.name}</strong></td>
+    <td>${s.platform}</td>
+    <td>${s.contact||'—'}</td>
+    <td>${s.ship||'—'}</td>
+    <td>${products.filter(p=>p.supplierId===s.id).length}</td>
+    <td style="display:flex;gap:6px">
+      <button class="btn btn-secondary btn-sm" onclick="editSupplier('${s.id}')">Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')">✕</button>
+    </td></tr>`).join('');
+}
+
+// ── PRODUCTS ─────────────────────────────────────────────────────────────────
+function openProductModal() {
+  populateSupplierSelect();
+  openModal('modal-product');
+  updateMarginPreview();
+}
+function populateSupplierSelect() {
+  const sel = document.getElementById('prod-supplier');
+  sel.innerHTML = suppliers.map(s=>`<option value="${s.id}">${s.name}</option>`).join('') || '<option value="">— add a supplier first —</option>';
+}
+function updateMarginPreview() {
+  const cost = parseFloat(document.getElementById('prod-cost').value) || 0;
+  const price = parseFloat(document.getElementById('prod-price').value) || 0;
+  const profit = price - cost;
+  const margin = price > 0 ? (profit / price * 100) : 0;
+  document.getElementById('margin-preview').innerHTML = `Profit per unit: <b>${fmt(profit)}</b> &nbsp;|&nbsp; Margin: <b>${margin.toFixed(1)}%</b>`;
+}
+function saveProduct() {
+  const id = document.getElementById('prod-edit-id').value;
+  const p = {
+    id: id || uid(),
+    name: document.getElementById('prod-name').value.trim(),
+    supplierId: document.getElementById('prod-supplier').value,
+    cost: parseFloat(document.getElementById('prod-cost').value) || 0,
+    price: parseFloat(document.getElementById('prod-price').value) || 0,
+    ship: document.getElementById('prod-ship').value.trim(),
+    status: document.getElementById('prod-status').value,
+    notes: document.getElementById('prod-notes').value.trim(),
+    created: id ? (products.find(x=>x.id===id)?.created || new Date().toISOString()) : new Date().toISOString(),
+  };
+  if (!p.name) { toast('Enter a product name', 'error'); return; }
+  if (id) { const i = products.findIndex(x=>x.id===id); products[i]=p; }
+  else products.push(p);
+  save('products', products);
+  closeModal('modal-product');
+  clearProductForm();
+  renderAll();
+  toast('Product saved!');
+}
+function editProduct(id) {
+  const p = products.find(x=>x.id===id);
+  populateSupplierSelect();
+  document.getElementById('prod-edit-id').value = p.id;
+  document.getElementById('prod-name').value = p.name;
+  document.getElementById('prod-supplier').value = p.supplierId;
+  document.getElementById('prod-cost').value = p.cost;
+  document.getElementById('prod-price').value = p.price;
+  document.getElementById('prod-ship').value = p.ship;
+  document.getElementById('prod-status').value = p.status;
+  document.getElementById('prod-notes').value = p.notes;
+  document.getElementById('prod-modal-title').textContent = 'Edit Product';
+  openModal('modal-product');
+  updateMarginPreview();
+}
+function deleteProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  products = products.filter(x=>x.id!==id);
+  save('products', products);
+  renderAll();
+  toast('Product removed');
+}
+function clearProductForm() {
+  ['prod-edit-id','prod-name','prod-cost','prod-price','prod-ship','prod-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('prod-status').value='testing';
+  document.getElementById('prod-modal-title').textContent='Add Product';
+  updateMarginPreview();
+}
+function renderProducts() {
+  const grid = document.getElementById('products-grid');
+  if (!products.length) { grid.innerHTML = '<p style="color:var(--muted);font-size:14px">No products yet. Add your first product to start tracking margins.</p>'; return; }
+  const statusMap = { testing:'badge-yellow', winning:'badge-green', scaling:'badge-blue', killed:'badge-red' };
+  grid.innerHTML = products.map(p => {
+    const profit = p.price - p.cost;
+    const margin = p.price > 0 ? (profit / p.price * 100) : 0;
+    return `<div class="service-card">
+      <div class="svc-name">${p.name}</div>
+      <div class="svc-price">${fmt(p.price)} <span style="font-size:13px;font-weight:400;color:var(--muted)">/ unit</span></div>
+      <div class="svc-desc">Cost: ${fmt(p.cost)} · Profit: ${fmt(profit)} · Margin: ${margin.toFixed(0)}%<br>Supplier: ${supplierName(p.supplierId)} ${p.ship ? '· '+p.ship : ''}</div>
+      <div style="margin-bottom:12px"><span class="badge ${statusMap[p.status]||'badge-blue'}">${p.status}</span></div>
+      <div class="svc-actions">
+        <button class="btn btn-secondary btn-sm" onclick="editProduct('${p.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ORDERS ───────────────────────────────────────────────────────────────────
+function populateOrderSelects() {
+  const sel = document.getElementById('ord-product');
+  sel.innerHTML = products.map(p=>`<option value="${p.id}">${p.name}</option>`).join('') || '<option value="">— add a product first —</option>';
+  if (!document.getElementById('ord-date').value) document.getElementById('ord-date').value = new Date().toISOString().split('T')[0];
+  autofillOrderPrice();
+}
+function autofillOrderPrice() {
+  const id = document.getElementById('ord-product').value;
+  const p = products.find(x=>x.id===id);
+  if (p) {
+    document.getElementById('ord-sale').value = p.price;
+    document.getElementById('ord-cost').value = p.cost;
+  }
+}
+function saveOrder() {
+  const id = document.getElementById('ord-edit-id').value;
+  const productId = document.getElementById('ord-product').value;
+  const sale = parseFloat(document.getElementById('ord-sale').value) || 0;
+  if (!productId) { toast('Select a product', 'error'); return; }
+  if (!sale) { toast('Enter a sale amount', 'error'); return; }
+  const o = {
+    id: id || uid(),
+    productId,
+    customer: document.getElementById('ord-customer').value.trim() || 'Customer',
+    sale,
+    cost: parseFloat(document.getElementById('ord-cost').value) || 0,
+    date: document.getElementById('ord-date').value,
+    status: document.getElementById('ord-status').value,
+    tracking: document.getElementById('ord-tracking').value.trim(),
+  };
+  if (id) { const i = orders.findIndex(x=>x.id===id); orders[i]=o; }
+  else orders.push(o);
+  save('orders', orders);
+  closeModal('modal-order');
+  ['ord-edit-id','ord-customer','ord-tracking'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ord-modal-title').textContent = 'Add Order';
+  renderAll();
+  toast('Order saved!');
+}
+function editOrder(id) {
+  const o = orders.find(x=>x.id===id);
+  populateOrderSelects();
+  document.getElementById('ord-edit-id').value = o.id;
+  document.getElementById('ord-product').value = o.productId;
+  document.getElementById('ord-customer').value = o.customer;
+  document.getElementById('ord-sale').value = o.sale;
+  document.getElementById('ord-cost').value = o.cost;
+  document.getElementById('ord-date').value = o.date;
+  document.getElementById('ord-status').value = o.status;
+  document.getElementById('ord-tracking').value = o.tracking;
+  document.getElementById('ord-modal-title').textContent = 'Edit Order';
+  openModal('modal-order');
+}
+function deleteOrder(id) {
+  if (!confirm('Delete this order?')) return;
+  orders = orders.filter(x=>x.id!==id);
+  save('orders', orders);
+  renderAll();
+  toast('Order removed');
+}
+function productName(id) { const p = products.find(x=>x.id===id); return p ? p.name : 'Unknown product'; }
+function renderOrders() {
+  const tbody = document.getElementById('orders-body');
+  if (!orders.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No orders yet.</td></tr>'; return; }
+  const statusMap = { new:'badge-yellow', ordered:'badge-blue', shipped:'badge-blue', delivered:'badge-green', refunded:'badge-red' };
+  const sorted = [...orders].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  tbody.innerHTML = sorted.map(o => {
+    const profit = o.status === 'refunded' ? -o.cost : (o.sale - o.cost);
+    return `<tr>
+      <td>${o.date ? new Date(o.date+'T12:00:00').toLocaleDateString() : '—'}</td>
+      <td>${productName(o.productId)}</td>
+      <td>${o.customer}</td>
+      <td>${fmt(o.sale)}</td>
+      <td>${fmt(o.cost)}</td>
+      <td style="color:${profit>=0?'var(--green)':'var(--red)'};font-weight:700">${fmt(profit)}</td>
+      <td><span class="badge ${statusMap[o.status]}">${o.status}</span></td>
+      <td>${o.tracking||'—'}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-secondary btn-sm" onclick="editOrder('${o.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">✕</button>
+      </td></tr>`;
+  }).join('');
+}
+
+// ── EXPENSES ─────────────────────────────────────────────────────────────────
+function saveExpense() {
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  if (!amount) { toast('Enter an amount', 'error'); return; }
+  const e = {
+    id: uid(),
+    type: document.getElementById('exp-type').value,
+    amount,
+    date: document.getElementById('exp-date').value,
+    desc: document.getElementById('exp-desc').value.trim() || 'Expense',
+  };
+  expenses.push(e);
+  save('expenses', expenses);
+  closeModal('modal-expense');
+  ['exp-amount','exp-desc'].forEach(id=>document.getElementById(id).value='');
+  renderAll();
+  toast('Expense logged!');
+}
+function deleteExpense(id) {
+  if (!confirm('Delete this expense?')) return;
+  expenses = expenses.filter(x=>x.id!==id);
+  save('expenses', expenses);
+  renderAll();
+  toast('Expense removed');
+}
+function renderExpenses() {
+  const adSpend = expenses.filter(e=>e.type==='ad_spend').reduce((s,e)=>s+e.amount,0);
+  const other = expenses.filter(e=>e.type!=='ad_spend').reduce((s,e)=>s+e.amount,0);
+  const orderProfit = orders.reduce((s,o)=> s + (o.status==='refunded' ? -o.cost : (o.sale-o.cost)), 0);
+  const net = orderProfit - adSpend - other;
+  document.getElementById('exp-ads').textContent = fmt(adSpend);
+  document.getElementById('exp-other').textContent = fmt(other);
+  document.getElementById('exp-net').textContent = fmt(net);
+
+  const tbody = document.getElementById('expenses-body');
+  if (!expenses.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No expenses logged yet.</td></tr>'; return; }
+  const sorted = [...expenses].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  tbody.innerHTML = sorted.map(e=>`<tr>
+    <td>${e.date ? new Date(e.date+'T12:00:00').toLocaleDateString() : '—'}</td>
+    <td><span class="badge ${e.type==='ad_spend'?'badge-orange':'badge-blue'}">${e.type==='ad_spend'?'Ad Spend':'Other'}</span></td>
+    <td>${e.desc}</td>
+    <td>${fmt(e.amount)}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="deleteExpense('${e.id}')">✕</button></td>
+  </tr>`).join('');
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const goal = settings.goal || 1000;
+  const weekOrders = orders.filter(o=>inWeek(o.date,0));
+  const weekProfit = weekOrders.reduce((s,o)=> s + (o.status==='refunded' ? -o.cost : (o.sale-o.cost)), 0);
+  const weekAdSpend = expenses.filter(e=>e.type==='ad_spend' && inWeek(e.date,0)).reduce((s,e)=>s+e.amount,0);
+  const netWeekProfit = weekProfit - weekAdSpend;
+  const pct = Math.min(100, Math.max(0,(netWeekProfit / goal) * 100));
+  document.getElementById('goal-progress').style.width = pct + '%';
+  document.getElementById('goal-amount-label').textContent = fmt(netWeekProfit) + ' / ' + fmt(goal);
+  document.getElementById('gs-earned').textContent = fmt(netWeekProfit);
+  document.getElementById('gs-remaining').textContent = fmt(Math.max(0, goal - netWeekProfit));
+  document.getElementById('gs-orders').textContent = weekOrders.length;
+  document.getElementById('gs-products').textContent = products.filter(p=>p.status!=='killed').length;
+
+  const totalRev = orders.filter(o=>o.status!=='refunded').reduce((s,o)=>s+o.sale,0);
+  const totalProfit = orders.reduce((s,o)=> s + (o.status==='refunded' ? -o.cost : (o.sale-o.cost)), 0) - expenses.reduce((s,e)=>s+e.amount,0);
+  const totalAdSpend = expenses.filter(e=>e.type==='ad_spend').reduce((s,e)=>s+e.amount,0);
+  const avgOrderProfit = orders.length ? (orders.reduce((s,o)=> s + (o.status==='refunded' ? -o.cost : (o.sale-o.cost)), 0) / orders.length) : 0;
+  document.getElementById('dash-rev').textContent = fmt(totalRev);
+  document.getElementById('dash-profit').textContent = fmt(totalProfit);
+  document.getElementById('dash-adspend').textContent = fmt(totalAdSpend);
+  document.getElementById('dash-avg').textContent = fmt(avgOrderProfit);
+
+  const recentOrders = [...orders].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+  const statusMap = { new:'badge-yellow', ordered:'badge-blue', shipped:'badge-blue', delivered:'badge-green', refunded:'badge-red' };
+  document.getElementById('dash-ord-body').innerHTML = recentOrders.length ? recentOrders.map(o=>`<tr>
+    <td>${productName(o.productId)}</td><td>${fmt(o.sale)}</td><td><span class="badge ${statusMap[o.status]}">${o.status}</span></td>
+  </tr>`).join('') : '<tr class="empty-row"><td colspan="3">No orders yet</td></tr>';
+
+  const topProducts = [...products].sort((a,b)=>{
+    const ma = a.price>0 ? (a.price-a.cost)/a.price : 0;
+    const mb = b.price>0 ? (b.price-b.cost)/b.price : 0;
+    return mb - ma;
+  }).slice(0,5);
+  document.getElementById('dash-prod-body').innerHTML = topProducts.length ? topProducts.map(p=>{
+    const margin = p.price>0 ? ((p.price-p.cost)/p.price*100) : 0;
+    return `<tr><td>${p.name}</td><td style="color:var(--accent2);font-weight:700">${margin.toFixed(0)}%</td></tr>`;
+  }).join('') : '<tr class="empty-row"><td colspan="2">No products yet</td></tr>';
+}
+
+// ── MARKETING SCRIPTS ────────────────────────────────────────────────────────
+const marketingScripts = [
+  {
+    title: '🎯 Winning Product Checklist',
+    tag: 'Research',
+    body: `A product is worth testing if it scores well on most of these:
+✅ Solves a clear problem or creates a strong "wow" reaction
+✅ Sells for 3-5x the supplier cost (e.g. $7 cost -> $25-35 retail)
+✅ Lightweight and not fragile (keeps shipping cheap and returns low)
+✅ Not easily found in local stores
+✅ Has visual or demo appeal for short-form video (15-30 sec hook)
+✅ Less than 5 strong, established competitors already running ads on it
+✅ Supplier ship time under 15 days (or you offer a US/EU warehouse option)
+
+Score it in the AI Studio "Product Validator" tool for a fast gut-check.`
+  },
+  {
+    title: '🎬 TikTok / Reels Organic Content Ideas',
+    tag: 'Organic',
+    body: `Post 1 — Unboxing/first reaction: film yourself opening the package and reacting, no talking needed.
+Post 2 — Problem -> Solution: 3 second clip of the annoying problem, then show the product fixing it instantly.
+Post 3 — "POV" style: "POV: you just found the [product] that [benefit]" with trending audio.
+Post 4 — Before/after or satisfying demo loop (oddly satisfying products do very well).
+Post 5 — Customer reaction / testimonial style, even staged with friends/family at first.
+
+Post 3-5x per week from a few different angles. Whichever video gets organic traction, turn into a paid ad.`
+  },
+  {
+    title: '📢 Facebook / Instagram Ad Copy Template',
+    tag: 'Paid Ads',
+    body: `Hook: Stop scrolling if you [pain point]! 😱
+Body: Introducing [Product Name] — the easiest way to [main benefit] without [common objection].
+✅ [Benefit 1]
+✅ [Benefit 2]
+✅ [Benefit 3]
+⏰ Limited stock — selling fast.
+🚚 Free shipping on orders today.
+CTA: Tap "Shop Now" to grab yours before we sell out.
+
+Use the AI Studio Ad Copy tool to generate a version tailored to your exact product and audience.`
+  },
+  {
+    title: '🤝 Influencer / UGC Outreach DM',
+    tag: 'Influencer',
+    body: `Hi [Name]! Love your content — especially your [specific recent post].
+
+I run [Store Name], and I think [Product Name] would be a great fit for your audience. I'd love to send you one for free in exchange for an honest review/video. If it performs well I'd also like to set up an ongoing affiliate partnership (you'd earn [X]% per sale through your link).
+
+Let me know if you're interested and I'll get your shipping details!
+
+— [Your Name]`
+  },
+  {
+    title: '📬 Abandoned Cart Recovery Email',
+    tag: 'Email',
+    body: `Subject: You left something behind 👀
+
+Hey [First Name],
+
+Looks like [Product Name] is still waiting in your cart! It's a customer favorite right now and stock is limited.
+
+Use code COMEBACK10 for 10% off if you check out in the next 24 hours.
+
+[Complete My Order button]
+
+Questions? Just reply to this email — we're here to help.`
+  },
+  {
+    title: '💬 Refund / Complaint De-escalation Script',
+    tag: 'Customer Service',
+    body: `Hi [Name], thanks so much for reaching out and I'm really sorry about the experience with your order.
+
+I completely understand the frustration, and I want to make this right. I can offer you [a full refund / a replacement / a partial refund + keep the item] — whichever works best for you. No need to send anything back.
+
+Could you confirm your order number so I can process this right away?
+
+Thanks again for your patience — we really appreciate you giving us the chance to fix this.`
+  },
+];
+function renderMarketing() {
+  document.getElementById('marketing-list').innerHTML = marketingScripts.map((m,i)=>`
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:16px;font-weight:700">${m.title}</span>
+        <span class="badge badge-blue">${m.tag}</span>
+      </div>
+      <pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.6;color:var(--muted);background:var(--surface2);padding:16px;border-radius:8px;border:1px solid var(--border)">${m.body}</pre>
+      <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="copyText(${i})">Copy to Clipboard</button>
+    </div>`).join('');
+}
+function copyText(i) { navigator.clipboard.writeText(marketingScripts[i].body).then(()=>toast('Copied to clipboard!')); }
+
+// ── AI STUDIO ────────────────────────────────────────────────────────────────
+let currentAiTool = 'desc';
+function setAiTool(tool, el) {
+  currentAiTool = tool;
+  document.querySelectorAll('.ai-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['desc','ad','reply','validate'].forEach(t => document.getElementById('ai-form-'+t).style.display = (t===tool ? 'block' : 'none'));
+  document.getElementById('ai-result').textContent = 'Your AI-generated result will appear here.';
+}
+
+async function callClaude(prompt) {
+  const key = settings.anthropicKey;
+  if (!key) return null;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: settings.aiModel || 'claude-haiku-4-5-20251001',
+        max_tokens: 700,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    if (!res.ok) throw new Error('Anthropic API error ' + res.status);
+    const data = await res.json();
+    return (data.content && data.content[0] && data.content[0].text) ? data.content[0].text.trim() : null;
+  } catch (e) {
+    console.warn('Claude API call failed, falling back to template:', e);
+    return null;
+  }
+}
+
+function buildPrompt() {
+  if (currentAiTool === 'desc') {
+    const name = document.getElementById('ai-desc-name').value.trim() || 'this product';
+    const features = document.getElementById('ai-desc-features').value.trim();
+    const tone = document.getElementById('ai-desc-tone').value;
+    return `Write a compelling, conversion-optimized e-commerce product description for a dropshipping store.\nProduct: ${name}\nKey features:\n${features}\nTone: ${tone}\nKeep it under 150 words. Include a short bullet list of benefits (not just features) and end with a strong call-to-action.`;
+  }
+  if (currentAiTool === 'ad') {
+    const name = document.getElementById('ai-ad-name').value.trim() || 'this product';
+    const audience = document.getElementById('ai-ad-audience').value.trim();
+    const pain = document.getElementById('ai-ad-pain').value.trim();
+    const platform = document.getElementById('ai-ad-platform').value;
+    return `Write a high-converting ${platform} ad for an e-commerce dropshipping product.\nProduct: ${name}\nTarget audience: ${audience}\nMain pain point / hook: ${pain}\nInclude: a scroll-stopping hook line, 3 short benefit bullet points, and a clear call-to-action. Keep total length under 100 words.`;
+  }
+  if (currentAiTool === 'reply') {
+    const issue = document.getElementById('ai-reply-issue').value;
+    const name = document.getElementById('ai-reply-name').value.trim() || 'the customer';
+    const order = document.getElementById('ai-reply-order').value.trim();
+    const context = document.getElementById('ai-reply-context').value.trim();
+    return `Write a warm, professional customer service reply for an e-commerce store.\nIssue type: ${issue}\nCustomer name: ${name}\n${order ? 'Order number: '+order+'\n' : ''}${context ? 'Extra context: '+context+'\n' : ''}Keep it empathetic, concise (under 120 words), and end with a clear next step.`;
+  }
+  if (currentAiTool === 'validate') {
+    const name = document.getElementById('ai-val-name').value.trim() || 'this product';
+    const cost = document.getElementById('ai-val-cost').value;
+    const price = document.getElementById('ai-val-price').value;
+    const competitor = document.getElementById('ai-val-competitor').value;
+    const notes = document.getElementById('ai-val-notes').value.trim();
+    return `Act as a dropshipping product research analyst. Evaluate this product idea and give a viability score out of 10 with brief reasoning, covering margin, market saturation risk, and shipping/logistics risk. Then give 2-3 concrete next steps.\nProduct: ${name}\nSupplier cost: $${cost||'?'}\nPlanned sell price: $${price||'?'}\n${competitor ? 'Competitor/market price: $'+competitor+'\n' : ''}Notes: ${notes||'none'}`;
+  }
+  return '';
+}
+
+function templateFallback() {
+  if (currentAiTool === 'desc') {
+    const name = document.getElementById('ai-desc-name').value.trim() || 'This Product';
+    const features = document.getElementById('ai-desc-features').value.trim().split('\n').filter(Boolean);
+    const bullets = features.length ? features.map(f=>'✅ '+f).join('\n') : '✅ Premium quality\n✅ Easy to use\n✅ Fast shipping';
+    return `Meet ${name} — designed to make your life easier, instantly.\n\n${bullets}\n\nJoin thousands of happy customers. Order now while supplies last!\n\n(Template mode — add an Anthropic API key in Settings for a fully custom, AI-written description.)`;
+  }
+  if (currentAiTool === 'ad') {
+    const name = document.getElementById('ai-ad-name').value.trim() || 'this product';
+    const pain = document.getElementById('ai-ad-pain').value.trim() || 'a problem you deal with every day';
+    return `Stop scrolling if you deal with ${pain}! 😱\n\nIntroducing ${name} — the simple fix thousands of customers are raving about.\n✅ Easy to use\n✅ Fast results\n✅ Limited stock\n\n👉 Tap "Shop Now" before we sell out.\n\n(Template mode — add an Anthropic API key in Settings for AI-tailored ad copy.)`;
+  }
+  if (currentAiTool === 'reply') {
+    const issue = document.getElementById('ai-reply-issue').value;
+    const name = document.getElementById('ai-reply-name').value.trim() || 'there';
+    const templates = {
+      'shipping delay': `Hi ${name}, thanks so much for your patience! I can see your order is on its way, but it's taking a bit longer than expected due to carrier delays. I'll keep an eye on it and reach back out the moment there's an update. If it hasn't arrived within 5 more business days, I'll send a replacement or refund automatically — no need to ask twice. Sorry for the wait!`,
+      'refund request': `Hi ${name}, I'm sorry to hear this didn't work out. I've gone ahead and started a full refund for your order — you should see it back on your original payment method within 5-10 business days. No need to return the item. Let me know if there's anything else I can help with!`,
+      'wrong/damaged item': `Hi ${name}, I'm really sorry about that — that's not the experience we want you to have. I'm sending out a replacement right away at no cost to you, and you're welcome to keep or dispose of the damaged item, no return needed. Could you confirm your shipping address so I can get this moving?`,
+      'where is my order': `Hi ${name}, thanks for checking in! Let me look into your order status now. In the meantime, here's your tracking link — it can take 24-48 hours after a scan for updates to show. I'll follow up personally once I have more details.`,
+      'general question': `Hi ${name}, thanks for reaching out! Happy to help with that — let me grab the details and get back to you with a clear answer shortly.`,
+    };
+    return (templates[issue] || templates['general question']) + '\n\n(Template mode — add an Anthropic API key in Settings for replies tailored to the exact context you provide.)';
+  }
+  if (currentAiTool === 'validate') {
+    const cost = parseFloat(document.getElementById('ai-val-cost').value) || 0;
+    const price = parseFloat(document.getElementById('ai-val-price').value) || 0;
+    const margin = price > 0 ? ((price-cost)/price*100) : 0;
+    let verdict = 'Needs work ⚠️';
+    if (margin >= 70) verdict = 'Strong margin ✅';
+    else if (margin >= 50) verdict = 'Decent margin 👍';
+    let score = Math.round(Math.min(10, Math.max(1, margin/10)));
+    return `Quick rule-based check (template mode):\n\nMargin: ${margin.toFixed(0)}% — ${verdict}\nRough viability score: ${score}/10\n\nRule of thumb: aim for 60%+ margin to cover ad spend, returns, and still profit. Validate demand with a small $20-50/day ad test before ordering inventory.\n\nAdd an Anthropic API key in Settings for a full AI-written analysis covering saturation and logistics risk too.`;
+  }
+  return '';
+}
+
+async function runAiTool() {
+  const resultEl = document.getElementById('ai-result');
+  const btn = document.getElementById('ai-generate-btn');
+  btn.disabled = true;
+  resultEl.classList.add('loading');
+  resultEl.textContent = 'Generating...';
+  const prompt = buildPrompt();
+  let result = await callClaude(prompt);
+  if (!result) result = templateFallback();
+  resultEl.classList.remove('loading');
+  resultEl.textContent = result;
+  btn.disabled = false;
+}
+function copyAiResult() {
+  const text = document.getElementById('ai-result').textContent;
+  navigator.clipboard.writeText(text).then(()=>toast('Copied to clipboard!'));
+}
+function renderAiStatus() {
+  const banner = document.getElementById('ai-status-banner');
+  if (settings.anthropicKey) {
+    banner.className = 'ai-status live';
+    banner.textContent = '✅ Live AI mode — generating with Claude (' + (settings.aiModel||'claude-haiku-4-5-20251001') + ')';
+  } else {
+    banner.className = 'ai-status offline';
+    banner.textContent = '⚠️ Template mode — add an Anthropic API key in Settings to generate with real AI';
+  }
+}
+
+// ── CHECKLIST ────────────────────────────────────────────────────────────────
+const defaultChecklist = [
+  { group: 'Foundation', items: [
+    { label: 'Pick a niche and brand name', done: false },
+    { label: 'Register a business (sole proprietorship/LLC) if required in your area', done: false },
+    { label: 'Open a separate business bank account', done: false },
+  ]},
+  { group: 'Store', items: [
+    { label: 'Connect a store platform: Shopify, WooCommerce, or similar', done: false },
+    { label: 'Buy and connect a domain name', done: false },
+    { label: 'Install your store theme and add your first products from the Products tab', done: false },
+  ]},
+  { group: 'Payments', items: [
+    { label: 'Connect a payment processor: Stripe and/or PayPal Business', done: false },
+    { label: 'Set up sales tax collection for your region', done: false },
+  ]},
+  { group: 'Suppliers', items: [
+    { label: 'Create an account with a supplier (CJ Dropshipping, Zendrop, AutoDS, Spocket, etc.)', done: false },
+    { label: 'Import your first products and sync pricing with the Products tab', done: false },
+  ]},
+  { group: 'Marketing', items: [
+    { label: 'Set up Meta Business Manager + install the Facebook/Instagram pixel', done: false },
+    { label: 'Set up a TikTok Ads account (optional) and install the TikTok pixel', done: false },
+    { label: 'Post your first organic content using the Marketing tab scripts', done: false },
+  ]},
+  { group: 'AI', items: [
+    { label: 'Add your Anthropic API key in Settings to enable live AI generation', done: false },
+  ]},
+];
+if (!checklist) { checklist = JSON.parse(JSON.stringify(defaultChecklist)); save('checklist', checklist); }
+
+function toggleCheck(groupIdx, itemIdx) {
+  checklist[groupIdx].items[itemIdx].done = !checklist[groupIdx].items[itemIdx].done;
+  save('checklist', checklist);
+  renderChecklist();
+}
+function addChecklistItem() {
+  const input = document.getElementById('ck-new-item');
+  const label = input.value.trim();
+  if (!label) return;
+  let custom = checklist.find(g=>g.group==='Custom');
+  if (!custom) { custom = { group: 'Custom', items: [] }; checklist.push(custom); }
+  custom.items.push({ label, done: false });
+  save('checklist', checklist);
+  input.value = '';
+  renderChecklist();
+}
+function removeChecklistItem(groupIdx, itemIdx) {
+  checklist[groupIdx].items.splice(itemIdx,1);
+  save('checklist', checklist);
+  renderChecklist();
+}
+function renderChecklist() {
+  const wrap = document.getElementById('checklist-groups');
+  wrap.innerHTML = checklist.map((g, gi) => `
+    <div class="checklist-group">
+      <h3>${g.group}</h3>
+      ${g.items.map((it,ii)=>`
+        <div class="check-item ${it.done?'done':''}">
+          <input type="checkbox" id="ck-${gi}-${ii}" ${it.done?'checked':''} onchange="toggleCheck(${gi},${ii})">
+          <label for="ck-${gi}-${ii}">${it.label}</label>
+          ${g.group==='Custom' ? `<button class="btn btn-danger btn-sm" onclick="removeChecklistItem(${gi},${ii})">✕</button>` : ''}
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────────────────────
+function loadSettingsForm() {
+  document.getElementById('set-store').value = settings.store || '';
+  document.getElementById('set-niche').value = settings.niche || '';
+  document.getElementById('set-goal').value = settings.goal || 1000;
+  document.getElementById('set-anthropic-key').value = settings.anthropicKey || '';
+  document.getElementById('set-ai-model').value = settings.aiModel || 'claude-haiku-4-5-20251001';
+}
+function saveSettings() {
+  settings = {
+    store: document.getElementById('set-store').value.trim(),
+    niche: document.getElementById('set-niche').value.trim(),
+    goal: parseFloat(document.getElementById('set-goal').value) || 1000,
+    anthropicKey: document.getElementById('set-anthropic-key').value.trim(),
+    aiModel: document.getElementById('set-ai-model').value,
+  };
+  save('settings', settings);
+  renderAll();
+  toast('Settings saved!');
+}
+
+// ── RENDER ALL ───────────────────────────────────────────────────────────────
+function renderAll() {
+  renderDashboard();
+  renderProducts();
+  renderOrders();
+  renderSuppliers();
+  renderExpenses();
+  renderMarketing();
+  renderChecklist();
+  renderAiStatus();
+  loadSettingsForm();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>

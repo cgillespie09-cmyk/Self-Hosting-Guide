@@ -63,17 +63,6 @@ button{font-family:inherit;border:none;background:none;cursor:pointer;}
 @keyframes driftC{0%,100%{transform:translate(0,0);}50%{transform:translate(50px,-60px);}}
 @media (prefers-reduced-motion:reduce){.aurora span{animation:none;}}
 
-/* ---------- custom cursor ---------- */
-@media (hover:hover) and (pointer:fine){
-  body{cursor:none;}
-  a,button,.work-card{cursor:none;}
-  .cursor-dot,.cursor-ring{position:fixed;top:0;left:0;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
-  .cursor-dot{width:6px;height:6px;background:var(--accent-2);}
-  .cursor-ring{width:34px;height:34px;border:1px solid rgba(255,255,255,.4);transition:width .25s,height .25s,border-color .25s,background .25s,scale .15s var(--ease-out);}
-  .cursor-ring.hover{width:60px;height:60px;border-color:var(--accent-2);background:rgba(185,196,204,.10);}
-  .cursor-ring.press{scale:.8;transition-duration:.1s;}
-}
-
 /* ---------- preloader ---------- */
 #preloader{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
 #preloader .mark{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.08em;background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent;}
@@ -274,7 +263,6 @@ footer{padding:90px 0 30px;border-top:1px solid var(--border);margin-top:60px;}
 <div id="preloader"><div class="mark">NOVA</div><div class="bar"><span></span></div></div>
 <div class="aurora"><span></span><span></span><span></span></div>
 <div class="bg-noise"></div>
-<div class="cursor-dot"></div><div class="cursor-ring"></div>
 
 <header id="site-header">
   <div class="container">
@@ -581,30 +569,6 @@ window.addEventListener('load', () => {
     setTimeout(() => pre.remove(), 550);
   }, 650);
 });
-
-/* ---------------- custom cursor ---------------- */
-if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
-  const dot = document.querySelector('.cursor-dot');
-  const ring = document.querySelector('.cursor-ring');
-  let mouse = { x: innerWidth/2, y: innerHeight/2 };
-  let ringPos = { x: mouse.x, y: mouse.y };
-  window.addEventListener('mousemove', e => {
-    mouse.x = e.clientX; mouse.y = e.clientY;
-    dot.style.transform = `translate(${mouse.x}px, ${mouse.y}px) translate(-50%,-50%)`;
-  });
-  (function loop(){
-    ringPos.x += (mouse.x - ringPos.x) * 0.18;
-    ringPos.y += (mouse.y - ringPos.y) * 0.18;
-    ring.style.transform = `translate(${ringPos.x}px, ${ringPos.y}px) translate(-50%,-50%)`;
-    requestAnimationFrame(loop);
-  })();
-  document.querySelectorAll('a, button, .work-card').forEach(el => {
-    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
-    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
-  });
-  window.addEventListener('mousedown', () => ring.classList.add('press'));
-  window.addEventListener('mouseup', () => ring.classList.remove('press'));
-}
 
 /* ---------------- magnetic buttons ---------------- */
 if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {

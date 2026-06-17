@@ -73,8 +73,16 @@ button{font-family:inherit;border:none;background:none;cursor:pointer;}
 header{position:fixed;top:0;left:0;right:0;z-index:500;padding:22px 0;transition:padding .3s,background .3s,border-color .3s;border-bottom:1px solid transparent;}
 header.scrolled{padding:14px 0;background:rgba(5,6,8,.75);backdrop-filter:blur(14px);border-color:var(--border);}
 nav{display:flex;align-items:center;justify-content:space-between;}
-.logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.3rem;letter-spacing:.04em;display:flex;align-items:center;gap:8px;}
-.logo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 12px var(--accent-2);}
+.logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.3rem;letter-spacing:.04em;display:flex;align-items:center;gap:11px;}
+.logo-star{width:30px;height:30px;overflow:visible;flex:none;}
+.logo-star .ls-spin{transform-box:fill-box;transform-origin:center;animation:logoSpin 9s linear infinite;}
+.logo-star .ls-flash{transform-box:fill-box;transform-origin:center;animation:logoFlash 2.6s ease-in-out infinite;}
+.logo-star .ls-body{animation:logoBody 2.6s ease-in-out infinite;}
+.logo-star .ls-accents{animation:logoAccents 2.6s ease-in-out infinite;}
+@keyframes logoSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes logoFlash{0%{filter:drop-shadow(0 0 2px rgba(70,160,255,.35));}45%{filter:drop-shadow(0 0 10px rgba(70,160,255,.95));}72%{filter:drop-shadow(0 0 1px rgba(40,90,200,.20));}100%{filter:drop-shadow(0 0 2px rgba(70,160,255,.35));}}
+@keyframes logoBody{0%{fill:#0a1326;}45%{fill:#12274f;}72%{fill:#070d1c;}100%{fill:#0a1326;}}
+@keyframes logoAccents{0%{stroke:#4a86c7;opacity:.7;}45%{stroke:#7fc4ff;opacity:1;}72%{stroke:#2a5fb0;opacity:.5;}100%{stroke:#4a86c7;opacity:.7;}}
 .nav-links{display:flex;gap:36px;font-size:.92rem;font-weight:500;color:var(--text-dim);}
 .nav-links a{transition:color .25s;position:relative;}
 .nav-links a:hover{color:var(--text);}
@@ -267,7 +275,7 @@ footer{padding:90px 0 30px;border-top:1px solid var(--border);margin-top:60px;}
 <header id="site-header">
   <div class="container">
     <nav>
-      <a href="#home" class="logo"><span class="dot"></span>NOVA STUDIO</a>
+      <a href="#home" class="logo"><svg class="logo-star" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g class="ls-spin"><g class="ls-flash"><path class="ls-body" d="M100 12 L118 82 L188 100 L118 118 L100 188 L82 118 L12 100 L82 82 Z"/><g class="ls-accents" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M100 12 L118 82 L188 100 L118 118 L100 188 L82 118 L12 100 L82 82 Z" stroke-width="3"/><path d="M100 12 L100 188 M12 100 L188 100" stroke-width="2"/><path d="M100 80 L120 100 L100 120 L80 100 Z" stroke-width="2.5"/></g></g></g></svg>NOVA STUDIO</a>
       <ul class="nav-links" id="nav-links">
         <li><a href="#work">Work</a></li>
         <li><a href="#services">Services</a></li>
@@ -518,7 +526,7 @@ footer{padding:90px 0 30px;border-top:1px solid var(--border);margin-top:60px;}
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href="#home" class="logo"><span class="dot"></span>NOVA STUDIO</a>
+        <a href="#home" class="logo"><svg class="logo-star" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g class="ls-spin"><g class="ls-flash"><path class="ls-body" d="M100 12 L118 82 L188 100 L118 118 L100 188 L82 118 L12 100 L82 82 Z"/><g class="ls-accents" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M100 12 L118 82 L188 100 L118 118 L100 188 L82 118 L12 100 L82 82 Z" stroke-width="3"/><path d="M100 12 L100 188 M12 100 L188 100" stroke-width="2"/><path d="M100 80 L120 100 L100 120 L80 100 Z" stroke-width="2.5"/></g></g></g></svg>NOVA STUDIO</a>
         <p>We design and build websites for small businesses that want to look — and perform — like a much bigger brand.</p>
         <div class="footer-socials">
           <a href="#"><i class="fa-brands fa-instagram"></i></a>

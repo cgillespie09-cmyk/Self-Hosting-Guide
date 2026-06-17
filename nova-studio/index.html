@@ -671,7 +671,7 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
 
 /* ---------------- smooth scroll (Lenis) + GSAP ScrollTrigger ---------------- */
 gsap.registerPlugin(ScrollTrigger);
-const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+const lenis = new Lenis({ lerp: 1, duration: 0.0000001, smoothWheel: true });
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => lenis.raf(time * 1000));
 gsap.ticker.lagSmoothing(0);

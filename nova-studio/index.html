@@ -69,8 +69,9 @@ button{font-family:inherit;border:none;background:none;cursor:pointer;}
   a,button,.work-card{cursor:none;}
   .cursor-dot,.cursor-ring{position:fixed;top:0;left:0;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
   .cursor-dot{width:6px;height:6px;background:var(--accent-2);}
-  .cursor-ring{width:34px;height:34px;border:1px solid rgba(255,255,255,.4);transition:width .25s,height .25s,border-color .25s,background .25s;}
+  .cursor-ring{width:34px;height:34px;border:1px solid rgba(255,255,255,.4);transition:width .25s,height .25s,border-color .25s,background .25s,scale .15s var(--ease-out);}
   .cursor-ring.hover{width:60px;height:60px;border-color:var(--accent-2);background:rgba(34,211,238,.08);}
+  .cursor-ring.press{scale:.8;transition-duration:.1s;}
 }
 
 /* ---------- preloader ---------- */
@@ -112,7 +113,8 @@ nav{display:flex;align-items:center;justify-content:space-between;}
 .hero-grad{position:absolute;inset:0;z-index:0;background:radial-gradient(circle at 75% 25%,rgba(139,92,246,.25),transparent 55%),radial-gradient(circle at 15% 80%,rgba(34,211,238,.18),transparent 55%);}
 .hero-content{position:relative;z-index:2;max-width:760px;}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:100px;border:1px solid var(--border);background:var(--surface);font-size:.82rem;color:var(--text-dim);margin-bottom:28px;}
-.eyebrow span.glow{width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399;}
+.eyebrow span.glow{width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399;animation:glowPulse 2.4s ease-in-out infinite;}
+@keyframes glowPulse{0%,100%{opacity:1;box-shadow:0 0 6px #34d399;}50%{opacity:.55;box-shadow:0 0 14px #34d399;}}
 .hero-content h1{font-size:clamp(2.6rem,6vw,4.4rem);font-weight:700;letter-spacing:-.01em;margin-bottom:24px;}
 .hero-content h1 .grad{background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent;}
 .hero-content p{font-size:1.15rem;color:var(--text-dim);max-width:560px;margin-bottom:36px;line-height:1.6;}
@@ -214,7 +216,9 @@ section{padding:140px 0;position:relative;}
 /* ---------- faq ---------- */
 .faq-list{max-width:760px;margin:0 auto;}
 .faq-item{border-bottom:1px solid var(--border);}
-.faq-q{display:flex;align-items:center;justify-content:space-between;padding:24px 0;font-weight:600;font-size:1.02rem;}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:24px 0;font-weight:600;font-size:1.02rem;cursor:pointer;transition:transform .15s var(--ease-out),color .2s;}
+.faq-q:active{transform:scale(.985);transition-duration:.08s;}
+@media (hover:hover) and (pointer:fine){.faq-q:hover{color:var(--accent-2);}}
 .faq-q i{transition:transform .3s;color:var(--accent-2);}
 .faq-item.open .faq-q i{transform:rotate(45deg);}
 .faq-a{max-height:0;overflow:hidden;transition:max-height .35s var(--ease-in-out);}
@@ -598,6 +602,8 @@ if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
     el.addEventListener('mouseenter', () => ring.classList.add('hover'));
     el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
   });
+  window.addEventListener('mousedown', () => ring.classList.add('press'));
+  window.addEventListener('mouseup', () => ring.classList.remove('press'));
 }
 
 /* ---------------- magnetic buttons ---------------- */
@@ -669,6 +675,7 @@ gsap.ticker.lagSmoothing(0);
 /* ---------------- reveal animations ---------------- */
 gsap.set('.reveal', { y: 40 });
 gsap.set('.service-icon', { rotate: -10, scale: .85 });
+gsap.set('.price-ribbon', { scale: .4, opacity: 0 });
 const staggerGroups = ['.services-grid', '.work-grid', '.pricing-grid', '.process-track'];
 const staggeredEls = new Set();
 staggerGroups.forEach(sel => {
@@ -684,6 +691,8 @@ staggerGroups.forEach(sel => {
       });
       const icons = batch.map(el => el.querySelector('.service-icon')).filter(Boolean);
       if (icons.length) gsap.to(icons, { rotate: 0, scale: 1, duration: .7, ease: 'back.out(1.6)', stagger: .12 });
+      const ribbons = batch.map(el => el.querySelector('.price-ribbon')).filter(Boolean);
+      if (ribbons.length) gsap.to(ribbons, { scale: 1, opacity: 1, duration: .6, delay: .25, ease: 'back.out(2)', stagger: .1 });
     }
   });
 });

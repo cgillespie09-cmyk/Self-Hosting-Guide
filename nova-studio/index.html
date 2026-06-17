@@ -176,7 +176,8 @@ section{padding:140px 0;position:relative;}
 .process-line{position:absolute;top:27px;left:0;right:0;height:1px;background:var(--border);z-index:0;}
 .process-line span{display:block;height:100%;width:0%;background:var(--gradient);}
 .process-step{position:relative;z-index:1;}
-.process-num{width:54px;height:54px;border-radius:50%;background:var(--bg-alt);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--accent-2);margin-bottom:22px;}
+.process-num{width:54px;height:54px;border-radius:50%;background:var(--bg-alt);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--accent-2);margin-bottom:22px;transition:transform .4s var(--ease-out),background .4s,border-color .4s,box-shadow .4s,color .4s;}
+.process-num.active{background:var(--gradient);border-color:transparent;color:#fff;transform:scale(1.12);box-shadow:0 10px 26px -8px rgba(139,92,246,.6);}
 .process-step h3{font-size:1.1rem;margin-bottom:8px;}
 .process-step p{color:var(--text-dim);font-size:.9rem;line-height:1.55;}
 
@@ -698,10 +699,30 @@ gsap.from('.hero-content .eyebrow, .hero-content h1, .hero-content p, .hero-acti
   opacity: 0, y: 24, duration: .9, stagger: .12, ease: 'power3.out', delay: .3
 });
 
-/* process line draw */
-gsap.to('#process-fill', {
-  width: '100%', duration: 1.4, ease: 'power2.inOut',
-  scrollTrigger: { trigger: '.process-track', start: 'top 70%' }
+/* process line scrub + step highlight, pinned through the section */
+const processNums = document.querySelectorAll('.process-num');
+ScrollTrigger.create({
+  trigger: '.process-track',
+  start: 'top 75%',
+  end: 'bottom 60%',
+  scrub: true,
+  onUpdate: self => {
+    gsap.set('#process-fill', { width: `${self.progress * 100}%` });
+    const activeCount = Math.round(self.progress * processNums.length);
+    processNums.forEach((el, i) => el.classList.toggle('active', i < activeCount));
+  }
+});
+
+/* cinematic scale + fade on scroll for work previews */
+document.querySelectorAll('.preview-wrap').forEach(el => {
+  gsap.fromTo(el, { scale: .88, opacity: .5 }, {
+    scale: 1, opacity: 1, ease: 'none',
+    scrollTrigger: { trigger: el, start: 'top 95%', end: 'top 55%', scrub: true }
+  });
+  gsap.to(el, {
+    scale: .9, opacity: .55, ease: 'none',
+    scrollTrigger: { trigger: el, start: 'bottom 45%', end: 'bottom 5%', scrub: true }
+  });
 });
 
 /* ---------------- stat counters ---------------- */

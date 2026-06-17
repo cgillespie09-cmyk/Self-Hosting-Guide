@@ -63,9 +63,21 @@ button{font-family:inherit;border:none;background:none;cursor:pointer;}
 @keyframes driftC{0%,100%{transform:translate(0,0);}50%{transform:translate(50px,-60px);}}
 @media (prefers-reduced-motion:reduce){.aurora span{animation:none;}}
 
+/* ---------- custom cursor (instant, no lag) ---------- */
+@media (hover:hover) and (pointer:fine){
+  body{cursor:none;}
+  a,button,.work-card,.faq-q{cursor:none;}
+  .cursor-dot,.cursor-ring{position:fixed;top:0;left:0;border-radius:50%;pointer-events:none;z-index:9999;opacity:0;}
+  .cursor-dot{width:5px;height:5px;background:var(--accent-2);box-shadow:0 0 6px var(--accent-2);transition:opacity .2s;}
+  .cursor-ring{width:28px;height:28px;border:1.5px solid var(--accent);box-shadow:0 0 12px -3px rgba(110,168,199,.8),inset 0 0 8px -4px rgba(110,168,199,.6);transition:width .22s var(--ease-out),height .22s var(--ease-out),background .22s,border-color .22s,opacity .2s;}
+  .cursor-ring.hover{width:52px;height:52px;border-color:var(--accent-2);background:rgba(110,168,199,.10);}
+  .cursor-ring.press{width:22px;height:22px;border-color:var(--accent-2);background:rgba(185,196,204,.14);}
+}
+
 /* ---------- preloader ---------- */
 #preloader{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
-#preloader .mark{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.08em;background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent;}
+#preloader .mark{display:inline-flex;align-items:center;gap:14px;font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;letter-spacing:.08em;}
+#preloader .mark span{background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent;}
 #preloader .bar{width:160px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
 #preloader .bar span{display:block;height:100%;width:0%;background:var(--gradient);}
 
@@ -268,7 +280,8 @@ footer{padding:90px 0 30px;border-top:1px solid var(--border);margin-top:60px;}
 </head>
 <body>
 
-<div id="preloader"><div class="mark">NOVA</div><div class="bar"><span></span></div></div>
+<div id="preloader"><div class="mark"><svg class="logo-star" style="width:42px;height:42px" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g class="ls-spin"><g class="ls-flash"><path class="ls-body" d="M100 12 L118 82 L188 100 L118 118 L100 188 L82 118 L12 100 L82 82 Z"/><g class="ls-accents" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M100 12 L118 82 L188 100 L118 118 L100 188 L82 118 L12 100 L82 82 Z" stroke-width="3"/><path d="M100 12 L100 188 M12 100 L188 100" stroke-width="2"/><path d="M100 80 L120 100 L100 120 L80 100 Z" stroke-width="2.5"/></g></g></g></svg><span>NOVA</span></div><div class="bar"><span></span></div></div>
+<div class="cursor-dot"></div><div class="cursor-ring"></div>
 <div class="aurora"><span></span><span></span><span></span></div>
 <div class="bg-noise"></div>
 
@@ -577,6 +590,25 @@ window.addEventListener('load', () => {
     setTimeout(() => pre.remove(), 550);
   }, 650);
 });
+
+/* ---------------- custom cursor (instant) ---------------- */
+if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
+  const dot = document.querySelector('.cursor-dot');
+  const ring = document.querySelector('.cursor-ring');
+  window.addEventListener('mousemove', e => {
+    const t = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%,-50%)`;
+    dot.style.transform = t;
+    ring.style.transform = t;
+    dot.style.opacity = ring.style.opacity = 1;
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => { dot.style.opacity = ring.style.opacity = 0; });
+  document.querySelectorAll('a, button, .work-card, .faq-q').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+  window.addEventListener('mousedown', () => ring.classList.add('press'));
+  window.addEventListener('mouseup', () => ring.classList.remove('press'));
+}
 
 /* ---------------- magnetic buttons ---------------- */
 if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {

@@ -2856,7 +2856,7 @@ Home Assistant integrations. Credit: [Home Assistant](https://www.home-assistant
 
 [obsws-python](https://github.com/aatikturk/obsws-python) is a Python SDK for OBS Studio WebSocket v5.0. 
 
-[Higgsfield CLI](https://higgsfield.ai/cli) is a command-line tool for generating images, videos, 3D assets, and audio from the terminal using 30+ Higgsfield AI models (Nano Banana Pro, FLUX.2, Soul V2, Veo 3.1, Kling v3.0, Seedance 2.0, and more), with integrations for Claude Code, Cursor, Codex, and other coding agents. Install with `npm install -g @higgsfield/cli`.
+[Higgsfield CLI](https://higgsfield.ai/cli) is a command-line tool for generating images, videos, 3D assets, and audio from the terminal using 30+ Higgsfield AI models (Nano Banana Pro, FLUX.2, Soul V2, Veo 3.1, Kling v3.0, Seedance 2.0, and more), with integrations for Claude Code, Cursor, Codex, and other coding agents. Install with `npm install -g @higgsfield/cli` or `curl -fsSL https://raw.githubusercontent.com/higgsfield-ai/cli/main/install.sh | sh`.
 
 **Video/Audio Standards**
 

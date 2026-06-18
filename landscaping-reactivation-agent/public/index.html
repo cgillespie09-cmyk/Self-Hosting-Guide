@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Landscaping Reactivation Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>🌿 <span id="business-name-header">Landscaping Reactivation</span></h1>
+  <nav>
+    <button data-tab="dashboard" class="tab-btn active">Dashboard</button>
+    <button data-tab="settings" class="tab-btn">Settings</button>
+    <button data-tab="customers" class="tab-btn">Customers</button>
+    <button data-tab="campaigns" class="tab-btn">Campaigns</button>
+    <button data-tab="activity" class="tab-btn">Activity</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-dashboard" class="tab active">
+    <h2>Overview</h2>
+    <div class="cards">
+      <div class="card"><span class="card-value" id="stat-customers">–</span><span class="card-label">Customers</span></div>
+      <div class="card"><span class="card-value" id="stat-optouts">–</span><span class="card-label">Opted out</span></div>
+      <div class="card"><span class="card-value" id="stat-sent">–</span><span class="card-label">Messages sent</span></div>
+      <div class="card"><span class="card-value" id="stat-replies">–</span><span class="card-label">Replies received</span></div>
+    </div>
+    <p>Point your Twilio number's "A message comes in" webhook at: <code id="webhook-url"></code></p>
+  </section>
+
+  <section id="tab-settings" class="tab">
+    <h2>Business &amp; Twilio settings</h2>
+    <form id="settings-form">
+      <label>Business name
+        <input name="businessName" required>
+      </label>
+      <label>Booking URL (optional)
+        <input name="bookingUrl" type="url" placeholder="https://example.com/book">
+      </label>
+      <label>Twilio Account SID
+        <input name="twilioAccountSid" required>
+      </label>
+      <label>Twilio Auth Token
+        <input name="twilioAuthToken" type="password" required>
+      </label>
+      <label>Twilio From Number
+        <input name="twilioFromNumber" placeholder="+15555550123" required>
+      </label>
+      <label>Delay between blast messages (ms)
+        <input name="blastDelayMs" type="number" min="200" step="100">
+      </label>
+      <button type="submit">Save settings</button>
+    </form>
+    <p id="settings-status" class="status"></p>
+  </section>
+
+  <section id="tab-customers" class="tab">
+    <h2>Customers</h2>
+    <form id="customer-form" class="inline-form">
+      <input name="name" placeholder="Name" required>
+      <input name="phone" placeholder="Phone" required>
+      <input name="lastServiceDate" placeholder="Last service date" type="date">
+      <button type="submit">Add</button>
+    </form>
+    <table id="customers-table">
+      <thead><tr><th>Name</th><th>Phone</th><th>Last service</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <h3>Bulk import (replaces the list)</h3>
+    <textarea id="csv-import" rows="6" placeholder="name,phone,last_service_date"></textarea>
+    <button id="csv-import-btn">Replace customer list</button>
+    <p id="customers-status" class="status"></p>
+  </section>
+
+  <section id="tab-campaigns" class="tab">
+    <h2>Campaigns</h2>
+    <div id="campaign-list"></div>
+    <p id="campaign-status" class="status"></p>
+  </section>
+
+  <section id="tab-activity" class="tab">
+    <h2>Opted-out numbers</h2>
+    <table id="optouts-table"><thead><tr><th>Phone</th><th></th></tr></thead><tbody></tbody></table>
+
+    <h2>Recent replies</h2>
+    <table id="replies-table"><thead><tr><th>When</th><th>From</th><th>Body</th><th>Intent</th></tr></thead><tbody></tbody></table>
+
+    <h2>Blast history</h2>
+    <table id="blastlog-table"><thead><tr><th>When</th><th>Campaign</th><th>Name</th><th>Phone</th><th>Status</th></tr></thead><tbody></tbody></table>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

@@ -5,20 +5,20 @@ require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 const twilio = require('twilio');
 const { parse } = require('csv-parse/sync');
+const config = require('./config');
 
 const DATA_DIR = path.join(__dirname, 'data');
+const PUBLIC_DIR = path.join(__dirname, 'public');
 const CUSTOMERS_CSV = path.join(__dirname, 'customers.csv');
 const OPT_OUT_FILE = path.join(DATA_DIR, 'opt-outs.json');
 const REPLIES_LOG = path.join(DATA_DIR, 'replies.log');
 const BLAST_LOG = path.join(DATA_DIR, 'blast-log.csv');
 
-const BUSINESS_NAME = process.env.BUSINESS_NAME || 'Your Landscaping Co';
-const BOOKING_URL = process.env.BOOKING_URL || '';
 const PORT = process.env.PORT || 3000;
-const BLAST_DELAY_MS = Number(process.env.BLAST_DELAY_MS) || 1100;
 
 const CAMPAIGNS = {
   spring: 'Hi {{name}}, it\'s {{business}} — spring clean-up season is here! Reply YES to grab a spot, or STOP to opt out.',
@@ -58,23 +58,27 @@ function loadCustomers() {
   return rows.map((row) => ({
     name: row.name,
     phone: normalizePhone(row.phone),
-    lastServiceDate: row.last_service_date,
+    lastServiceDate: row.last_service_date || '',
   }));
 }
 
-function renderTemplate(template, customer) {
-  return template
-    .replace(/{{\s*name\s*}}/g, customer.name)
-    .replace(/{{\s*business\s*}}/g, BUSINESS_NAME);
+function csvEscape(value) {
+  const str = String(value ?? '');
+  return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
 }
 
-function getTwilioClient() {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  if (!accountSid || !authToken) {
-    throw new Error('TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN must be set (see .env.example).');
+function writeCustomers(customers) {
+  const lines = ['name,phone,last_service_date'];
+  for (const c of customers) {
+    lines.push([csvEscape(c.name), csvEscape(c.phone), csvEscape(c.lastServiceDate)].join(','));
   }
-  return twilio(accountSid, authToken);
+  fs.writeFileSync(CUSTOMERS_CSV, `${lines.join('\n')}\n`);
+}
+
+function renderTemplate(template, customer, businessName) {
+  return template
+    .replace(/{{\s*name\s*}}/g, customer.name)
+    .replace(/{{\s*business\s*}}/g, businessName);
 }
 
 function appendBlastLog(rows) {
@@ -91,65 +95,60 @@ function appendBlastLog(rows) {
 async function runBlast(campaignName) {
   const template = CAMPAIGNS[campaignName];
   if (!template) {
-    console.error(`Unknown campaign "${campaignName}". Available: ${Object.keys(CAMPAIGNS).join(', ')}`);
-    process.exitCode = 1;
-    return;
+    throw new Error(`Unknown campaign "${campaignName}". Available: ${Object.keys(CAMPAIGNS).join(', ')}`);
   }
 
-  const fromNumber = process.env.TWILIO_FROM_NUMBER;
-  if (!fromNumber) {
-    console.error('TWILIO_FROM_NUMBER must be set (see .env.example).');
-    process.exitCode = 1;
-    return;
+  const settings = config.load();
+  if (!settings.twilioAccountSid || !settings.twilioAuthToken) {
+    throw new Error('Twilio Account SID and Auth Token are not set. Configure them in Settings.');
+  }
+  if (!settings.twilioFromNumber) {
+    throw new Error('Twilio "from" number is not set. Configure it in Settings.');
   }
 
-  const client = getTwilioClient();
+  const client = twilio(settings.twilioAccountSid, settings.twilioAuthToken);
   const optOuts = loadOptOuts();
   const customers = loadCustomers().filter((c) => !optOuts.has(c.phone));
-
-  console.log(`Sending "${campaignName}" campaign to ${customers.length} customer(s)...`);
 
   const logRows = [];
   let sent = 0;
   let failed = 0;
 
   for (const customer of customers) {
-    const body = renderTemplate(template, customer);
+    const body = renderTemplate(template, customer, settings.businessName);
     const timestamp = new Date().toISOString();
     try {
-      await client.messages.create({ to: customer.phone, from: fromNumber, body });
+      await client.messages.create({ to: customer.phone, from: settings.twilioFromNumber, body });
       sent += 1;
       logRows.push([timestamp, campaignName, customer.phone, customer.name, 'sent', '']);
-      console.log(`  sent -> ${customer.name} (${customer.phone})`);
     } catch (err) {
       failed += 1;
       logRows.push([timestamp, campaignName, customer.phone, customer.name, 'failed', err.message.replace(/,/g, ';')]);
-      console.error(`  failed -> ${customer.name} (${customer.phone}): ${err.message}`);
     }
-    await new Promise((resolve) => setTimeout(resolve, BLAST_DELAY_MS));
+    await new Promise((resolve) => setTimeout(resolve, settings.blastDelayMs));
   }
 
   appendBlastLog(logRows);
-  console.log(`Done. Sent: ${sent}, Failed: ${failed}, Skipped (opted out): ${optOuts.size}`);
+  return { campaign: campaignName, sent, failed, skipped: optOuts.size, total: customers.length };
 }
 
-function buildReply(body) {
+function buildReply(body, settings) {
   const text = body.trim().toUpperCase();
 
   if (['STOP', 'STOPALL', 'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT'].includes(text)) {
-    return { intent: 'opt-out', reply: `You're unsubscribed from ${BUSINESS_NAME} texts and won't receive further messages. Reply START to resubscribe.` };
+    return { intent: 'opt-out', reply: `You're unsubscribed from ${settings.businessName} texts and won't receive further messages. Reply START to resubscribe.` };
   }
 
   if (['START', 'YES', 'Y'].includes(text)) {
-    const booking = BOOKING_URL ? ` Book a time here: ${BOOKING_URL}` : " We'll text you shortly to set up a time.";
+    const booking = settings.bookingUrl ? ` Book a time here: ${settings.bookingUrl}` : " We'll text you shortly to set up a time.";
     return { intent: 'opt-in', reply: `Great! Thanks for getting back to us.${booking}` };
   }
 
   if (text === 'HELP') {
-    return { intent: 'help', reply: `${BUSINESS_NAME}: Reply YES to book a visit, STOP to unsubscribe.` };
+    return { intent: 'help', reply: `${settings.businessName}: Reply YES to book a visit, STOP to unsubscribe.` };
   }
 
-  return { intent: 'other', reply: `Thanks for the reply! Someone from ${BUSINESS_NAME} will follow up shortly.` };
+  return { intent: 'other', reply: `Thanks for the reply! Someone from ${settings.businessName} will follow up shortly.` };
 }
 
 function logReply(entry) {
@@ -157,26 +156,155 @@ function logReply(entry) {
   fs.appendFileSync(REPLIES_LOG, `${JSON.stringify(entry)}\n`);
 }
 
+function validateTwilioRequest(req, res, next) {
+  const settings = config.load();
+  if (!settings.twilioAuthToken) return next();
+
+  const signature = req.headers['x-twilio-signature'];
+  const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  const isValid = twilio.validateRequest(settings.twilioAuthToken, signature, url, req.body);
+  if (isValid) return next();
+  res.status(403).send('Invalid Twilio signature');
+}
+
+function safeCompare(a, b) {
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
+function requireDashboardAuth(req, res, next) {
+  const username = process.env.DASHBOARD_USERNAME;
+  const password = process.env.DASHBOARD_PASSWORD;
+  if (!username || !password) {
+    return res.status(503).send('Dashboard disabled: set DASHBOARD_USERNAME and DASHBOARD_PASSWORD in .env to enable it.');
+  }
+
+  const header = req.headers.authorization || '';
+  const [scheme, encoded] = header.split(' ');
+  if (scheme === 'Basic' && encoded) {
+    const decoded = Buffer.from(encoded, 'base64').toString('utf8');
+    const sepIndex = decoded.indexOf(':');
+    const user = decoded.slice(0, sepIndex);
+    const pass = decoded.slice(sepIndex + 1);
+    if (safeCompare(user, username) && safeCompare(pass, password)) {
+      return next();
+    }
+  }
+
+  res.set('WWW-Authenticate', 'Basic realm="Landscaping Dashboard"');
+  res.status(401).send('Authentication required.');
+}
+
+function buildApiRouter() {
+  const router = express.Router();
+
+  router.get('/settings', (req, res) => {
+    res.json(config.load());
+  });
+
+  router.post('/settings', (req, res) => {
+    const allowed = ['businessName', 'bookingUrl', 'twilioAccountSid', 'twilioAuthToken', 'twilioFromNumber', 'blastDelayMs'];
+    const partial = {};
+    for (const key of allowed) {
+      if (req.body[key] === undefined) continue;
+      partial[key] = key === 'blastDelayMs' ? Number(req.body[key]) || 1100 : req.body[key];
+    }
+    res.json(config.save(partial));
+  });
+
+  router.get('/customers', (req, res) => {
+    res.json(loadCustomers());
+  });
+
+  router.post('/customers', (req, res) => {
+    const { name, phone, lastServiceDate } = req.body;
+    if (!name || !phone) {
+      return res.status(400).json({ error: 'name and phone are required' });
+    }
+    const customers = loadCustomers();
+    customers.push({ name, phone: normalizePhone(phone), lastServiceDate: lastServiceDate || '' });
+    writeCustomers(customers);
+    res.status(201).json(customers);
+  });
+
+  router.delete('/customers/:phone', (req, res) => {
+    const target = normalizePhone(req.params.phone);
+    writeCustomers(loadCustomers().filter((c) => c.phone !== target));
+    res.json(loadCustomers());
+  });
+
+  router.post('/customers/import', (req, res) => {
+    const { csv } = req.body;
+    if (!csv) return res.status(400).json({ error: 'csv text is required' });
+    try {
+      parse(csv, { columns: true, skip_empty_lines: true, trim: true });
+    } catch (err) {
+      return res.status(400).json({ error: `Invalid CSV: ${err.message}` });
+    }
+    fs.writeFileSync(CUSTOMERS_CSV, `${csv.trim()}\n`);
+    res.json(loadCustomers());
+  });
+
+  router.get('/campaigns', (req, res) => {
+    res.json(CAMPAIGNS);
+  });
+
+  router.post('/campaigns/:name/blast', async (req, res) => {
+    try {
+      const result = await runBlast(req.params.name);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  });
+
+  router.get('/opt-outs', (req, res) => {
+    res.json([...loadOptOuts()]);
+  });
+
+  router.delete('/opt-outs/:phone', (req, res) => {
+    const optOuts = loadOptOuts();
+    optOuts.delete(normalizePhone(req.params.phone));
+    saveOptOuts(optOuts);
+    res.json([...optOuts]);
+  });
+
+  router.get('/replies', (req, res) => {
+    try {
+      const lines = fs.readFileSync(REPLIES_LOG, 'utf8').trim().split('\n').filter(Boolean);
+      res.json(lines.slice(-200).reverse().map((line) => JSON.parse(line)));
+    } catch {
+      res.json([]);
+    }
+  });
+
+  router.get('/blast-log', (req, res) => {
+    try {
+      const content = fs.readFileSync(BLAST_LOG, 'utf8').trim();
+      res.json(parse(content, { columns: true, skip_empty_lines: true }).reverse());
+    } catch {
+      res.json([]);
+    }
+  });
+
+  return router;
+}
+
 function startServer() {
   const app = express();
   app.set('trust proxy', true); // honor X-Forwarded-* when run behind a reverse proxy
   app.use(express.urlencoded({ extended: false }));
-
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  const validateTwilioRequest = authToken
-    ? twilio.webhook({ validate: true })
-    : (req, res, next) => next();
-
-  if (!authToken) {
-    console.warn('TWILIO_AUTH_TOKEN not set — incoming webhook signature validation is disabled.');
-  }
+  app.use(express.json());
 
   app.get('/health', (req, res) => res.json({ ok: true }));
 
   app.post('/sms', validateTwilioRequest, (req, res) => {
+    const settings = config.load();
     const from = req.body.From;
     const body = req.body.Body || '';
-    const { intent, reply } = buildReply(body);
+    const { intent, reply } = buildReply(body, settings);
 
     if (intent === 'opt-out' && from) {
       const optOuts = loadOptOuts();
@@ -196,14 +324,25 @@ function startServer() {
     res.type('text/xml').send(twiml.toString());
   });
 
+  if (!process.env.DASHBOARD_USERNAME || !process.env.DASHBOARD_PASSWORD) {
+    console.warn('DASHBOARD_USERNAME/DASHBOARD_PASSWORD not set — the web dashboard is disabled. The /sms webhook still works.');
+  }
+
+  // Everything below requires dashboard auth; /sms and /health stay public for Twilio/health checks.
+  app.use(requireDashboardAuth);
+  app.use('/api', buildApiRouter());
+  app.use(express.static(PUBLIC_DIR));
+
   app.listen(PORT, () => {
-    console.log(`Reply server listening on port ${PORT}. Point your Twilio webhook at POST /sms.`);
+    console.log(`Server listening on port ${PORT}.`);
+    console.log(`  Twilio webhook: POST /sms`);
+    console.log(`  Dashboard:      GET  /`);
   });
 }
 
 function printUsage() {
   console.log(`Usage:
-  node landscaping-reactivation-agent.js serve          Start the reply server (webhook: POST /sms)
+  node landscaping-reactivation-agent.js serve          Start the reply server + web dashboard
   node landscaping-reactivation-agent.js blast <name>    Send a campaign blast from customers.csv
 
 Available campaigns: ${Object.keys(CAMPAIGNS).join(', ')}`);
@@ -220,7 +359,13 @@ async function main() {
       process.exitCode = 1;
       return;
     }
-    await runBlast(arg);
+    try {
+      const result = await runBlast(arg);
+      console.log(`Done. Sent: ${result.sent}, Failed: ${result.failed}, Skipped (opted out): ${result.skipped}`);
+    } catch (err) {
+      console.error(err.message);
+      process.exitCode = 1;
+    }
   } else {
     printUsage();
     process.exitCode = command ? 1 : 0;

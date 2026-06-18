@@ -1,0 +1,17 @@
+{
+  "name": "landscaping-reactivation-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SMS reactivation campaigns and reply handling for landscaping customers, powered by Twilio.",
+  "main": "landscaping-reactivation-agent.js",
+  "scripts": {
+    "serve": "node landscaping-reactivation-agent.js serve",
+    "blast": "node landscaping-reactivation-agent.js blast"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "twilio": "^5.3.0"
+  }
+}

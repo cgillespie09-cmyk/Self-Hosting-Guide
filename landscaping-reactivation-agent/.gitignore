@@ -1,0 +1,5 @@
+node_modules/
+.env
+data/opt-outs.json
+data/replies.log
+data/blast-log.csv

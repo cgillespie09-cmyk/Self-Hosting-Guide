@@ -1,0 +1,74 @@
+:root {
+  --green: #2f7d32;
+  --green-dark: #1f5522;
+  --bg: #f6f8f6;
+  --border: #d9e2d9;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: #1a1a1a;
+}
+header {
+  background: var(--green);
+  color: white;
+  padding: 1rem 1.5rem;
+}
+header h1 { margin: 0 0 0.75rem; font-size: 1.4rem; }
+nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.tab-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.tab-btn.active { background: white; color: var(--green-dark); font-weight: 600; }
+main { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+.tab { display: none; }
+.tab.active { display: block; }
+.cards { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  min-width: 140px;
+  text-align: center;
+}
+.card-value { display: block; font-size: 1.8rem; font-weight: 700; color: var(--green-dark); }
+.card-label { font-size: 0.85rem; color: #666; }
+form label { display: block; margin-bottom: 0.75rem; font-size: 0.9rem; }
+form input, form textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+.inline-form { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.inline-form input { width: auto; flex: 1; min-width: 140px; margin-top: 0; }
+button {
+  background: var(--green);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+button:hover { background: var(--green-dark); }
+button:disabled { opacity: 0.6; cursor: default; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; background: white; }
+th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+.campaign-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+.campaign-card h3 { margin: 0 0 0.5rem; text-transform: capitalize; }
+.status { font-weight: 600; min-height: 1.2em; }
+code { background: #eef3ee; padding: 0.2rem 0.4rem; border-radius: 4px; }

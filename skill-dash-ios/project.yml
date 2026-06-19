@@ -1,0 +1,34 @@
+name: SkillDash
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+configs:
+  Debug: debug
+  Release: release
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+targets:
+  SkillDash:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: SkillDash
+    resources:
+      - path: SkillDash/Resources/Assets.xcassets
+    info:
+      path: Generated/Info.plist
+      properties:
+        CFBundleDisplayName: Skill Dash
+        UILaunchScreen: {}
+        UIRequiresFullScreen: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.skilldash
+        TARGETED_DEVICE_FAMILY: "1"

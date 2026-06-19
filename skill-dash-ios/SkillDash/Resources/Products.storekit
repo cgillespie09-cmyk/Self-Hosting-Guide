@@ -1,0 +1,89 @@
+{
+  "identifier" : "SkillDashStoreKit",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "1000000000001",
+      "localizations" : [
+        {
+          "description" : "Cosmetic skin only — no gameplay advantage.",
+          "displayName" : "Neon Skin",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.example.skilldash.skin.neon",
+      "referenceName" : "Neon Skin",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "1000000000002",
+      "localizations" : [
+        {
+          "description" : "Cosmetic skin only — no gameplay advantage.",
+          "displayName" : "Crimson Skin",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.example.skilldash.skin.crimson",
+      "referenceName" : "Crimson Skin",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "1000000000003",
+      "localizations" : [
+        {
+          "description" : "Cosmetic skin only — no gameplay advantage.",
+          "displayName" : "Forest Skin",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.example.skilldash.skin.forest",
+      "referenceName" : "Forest Skin",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "1000000000004",
+      "localizations" : [
+        {
+          "description" : "Cosmetic skin only — no gameplay advantage.",
+          "displayName" : "Gold Skin",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.example.skilldash.skin.gold",
+      "referenceName" : "Gold Skin",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "1000000000005",
+      "localizations" : [
+        {
+          "description" : "Unlocks every cosmetic skin, current and future. No gameplay advantage.",
+          "displayName" : "All Skins Bundle",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.example.skilldash.bundle.allskins",
+      "referenceName" : "All Skins Bundle",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : true
+  },
+  "subscriptionGroups" : [],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}

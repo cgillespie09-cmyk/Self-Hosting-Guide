@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__a24f151b-2f70-41a4-8923-ba76fd09d9f7__apollo_emailer_campaigns_search",
+      "mcp__a24f151b-2f70-41a4-8923-ba76fd09d9f7__apollo_sequences_create"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/skills/impeccable/scripts/hook.mjs\"",
+            "timeout": 5,
+            "statusMessage": "Checking UI changes"
+          }
+        ]
+      }
+    ]
+  },
+  "description": "Impeccable design detector: runs after Edit/Write/MultiEdit on UI files and surfaces findings as system reminders."
+}
